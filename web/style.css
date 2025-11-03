@@ -1,0 +1,167 @@
+/* ============ Reset & Theme Tokens ============ */
+*,*::before,*::after{box-sizing:border-box}
+html,body{height:100%}
+html{scroll-behavior:smooth}
+body{margin:0;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans KR",Arial,sans-serif;color:#e9ecf6}
+
+:root{
+  --bg:#0a0b18;
+  --bg-2:#0e0f1f;
+  --panel:#13142a;
+  --panel-2:#1a1c33;
+  --line:rgba(255,255,255,.12);
+  --ink:#e9ecf6;
+  --muted:#b8bfd3;
+  --brand:#8a7dff;
+  --brand-2:#00d1ff;
+  --ok:#00b894; --warn:#f39c12; --bad:#e74c3c;
+  --radius:14px;
+  --header-h:64px;
+}
+
+body{
+  background:
+    radial-gradient(1200px 520px at 15% -10%, rgba(138,125,255,.25), transparent 60%),
+    radial-gradient(1000px 520px at 85% -15%, rgba(0,209,255,.18), transparent 60%),
+    var(--bg);
+}
+
+/* ============ Layout ============ */
+.container{max-width:1080px;margin:0 auto;padding:0 20px}
+.section{padding:56px 0;border-top:1px solid var(--line)}
+.section-title{margin:0 0 14px;font-size:28px;letter-spacing:.2px}
+.small{font-size:13px;color:#b6bdca}
+.kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#1b1d36;border:1px solid var(--line);padding:2px 6px;border-radius:6px}
+.badge{border:1px solid var(--line);background:#12132a;padding:6px 10px;border-radius:999px;color:#cfd4e1;font-size:12px}
+.badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+
+.grid{display:grid;gap:16px}
+.grid.cols-2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.grid.cols-3{grid-template-columns:repeat(3,minmax(0,1fr))}
+@media (max-width:860px){.grid.cols-2,.grid.cols-3{grid-template-columns:1fr}}
+
+/* ============ Header (works with or without .app-header-inner) ============ */
+.app-header{
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(8px);
+  background:linear-gradient(180deg, rgba(10,11,24,.85), rgba(10,11,24,.60));
+  border-bottom:1px solid var(--line);
+  min-height:var(--header-h);
+  justify-content: center;
+  display:flex;align-items:center; /* <- direct-children case 지원 */
+  gap:16px;padding:0 12px;
+}
+.app-header h1{font-size:18px;margin:0}
+.menu a{color:#dfe4f5;text-decoration:none;padding:10px 12px;border-radius:10px;border:1px solid transparent}
+.menu a:hover{border-color:var(--line);background:#11122a}
+.menu a.active{background:linear-gradient(90deg,var(--brand),var(--brand-2));color:#051018}
+
+.app-header .hdr-left,.app-header .hdr-right{display:flex;align-items:center;gap:16px}
+
+/* 컨테이너 래퍼가 있는 페이지도 지원 */
+.app-header .app-header-inner{display:flex;justify-content:space-between;align-items:center;gap:16px}
+.app-header .app-header-inner .hdr-left,.app-header .app-header-inner .hdr-right{padding:0}
+
+/* ============ Buttons ============ */
+.btn{display:inline-block;padding:10px 14px;border-radius:12px;border:1px solid var(--line);color:var(--ink);text-decoration:none;background:#12132a}
+.btn.primary{background:linear-gradient(90deg,var(--brand),var(--brand-2));border-color:transparent;color:#04121a;font-weight:700}
+.btn.ghost{background:transparent}
+.btn:focus-visible{outline:2px solid var(--brand-2);outline-offset:2px}
+
+/* ============ Hero ============ */
+.hero{
+  position:relative;overflow:hidden;border-bottom:1px solid var(--line);
+  min-height:280px; /* 과도한 빈 공간 방지 */
+  display:flex;align-items:center;
+  padding:calc(var(--header-h) / 2) 0 48px; /* sticky 헤더 보정 */
+}
+.hero .hero-bg{
+  position:absolute;inset:0;z-index:0;pointer-events:none;
+  background:
+    radial-gradient(600px 300px at 20% 0%, rgba(138,125,255,.25), transparent 60%),
+    radial-gradient(600px 300px at 80% -10%, rgba(0,209,255,.18), transparent 60%),
+    linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.25));
+}
+.hero .container{position:relative;z-index:1}
+.hero .eyebrow{letter-spacing:.12em;color:#b7bfe0;text-transform:uppercase;font-size:12px;margin:0}
+.hero h1{font-size:42px;line-height:1.2;margin:10px 0 8px}
+.hero .sub{color:#cdd3e7;max-width:760px;margin:0}
+
+/* ============ Cards ============ */
+.card{
+  background:linear-gradient(180deg,var(--panel),var(--panel-2));
+  border:1px solid var(--line);border-radius:var(--radius);padding:18px
+}
+.card h3{margin:0 0 8px}
+
+/* ============ Tables ============ */
+.table{width:100%;border-collapse:collapse;background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.table th,.table td{padding:12px;border-bottom:1px solid var(--line);text-align:right}
+.table th{background:#191b33;text-align:center}
+.table td:first-child,.table th:first-child{text-align:left}
+.t-foot{font-weight:700;background:#16172e}
+.ok{color:var(--ok)}.warn{color:var(--warn)}.bad{color:var(--bad)}
+
+/* ============ Forms ============ */
+.form{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
+.field{grid-column:span 6;background:#12132a;border:1px solid var(--line);padding:12px;border-radius:12px}
+.field label{display:block;font-weight:700;margin-bottom:6px;color:#dfe4f5}
+.field input,.field select,.field textarea{
+  width:100%;padding:10px;border-radius:8px;border:1px solid var(--line);
+  background:#0d0f1f;color:var(--ink)
+}
+.field textarea{min-height:120px;resize:vertical}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+
+/* ============ Footer ============ */
+.site-footer{border-top:1px solid var(--line);background:#0b0c19;color:#cfd4e1;margin-top:40px}
+.site-footer .foot{max-width:1080px;margin:0 auto;padding:24px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px}
+.site-footer a{color:#dbe2f3;text-decoration:none;margin-left:14px}
+.site-footer a:hover{text-decoration:underline}
+
+/* ============ Helpers ============ */
+.cta-row{display:flex;gap:12px;flex-wrap:wrap;margin-top:18px}
+.notice{background:#111326;border:1px dashed var(--line);padding:12px 14px;border-radius:10px;color:#cfd4e1}
+a{color:#cfe3ff}
+a:hover{color:#ffffff}
+
+/* --- 문서/코드 가독성 향상 --- */
+pre{background:#0f1124;border:1px solid var(--line);padding:12px;border-radius:12px;overflow:auto}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+#redoc-container{background:linear-gradient(180deg,var(--panel),var(--panel-2));border:1px solid var(--line);border-radius:var(--radius);min-height:560px}
+.api-badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.api-badges .badge{background:#101229}
+.err{color:#ffb4b4}
+
+/* --- API 페이지 보완 스타일 --- */
+.hero-visual .badge code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+.lead{color:#d6dbed}
+.formula{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+pre .hl{color:#9ad1ff}
+pre.small{font-size:12px}
+code{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
+
+/* 코드 탭 */
+.code-tabs { border:1px solid var(--line); border-radius:12px; overflow:hidden; background:linear-gradient(180deg,var(--panel),var(--panel-2)); }
+.code-tabs .tab-buttons { display:flex; gap:6px; padding:8px; border-bottom:1px solid var(--line); background:#16172e; }
+.code-tabs .tab-btn { appearance:none; border:1px solid var(--line); background:#12132a; color:var(--ink); padding:6px 10px; border-radius:8px; cursor:pointer; font-size:12px; }
+.code-tabs .tab-btn.active { background:linear-gradient(90deg,var(--brand),var(--brand-2)); color:#04121a; border-color:transparent; font-weight:700; }
+.code-tabs .tab-panel { display:none; padding:10px 12px; }
+.code-tabs .tab-panel.active { display:block; }
+
+pre { background:#0f1124; border:1px solid var(--line); padding:12px; border-radius:12px; overflow:auto; }
+pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+
+/* 알림 박스 */
+.notice.info, .note, .tip, .note.warn { border:1px solid var(--line); padding:12px 14px; border-radius:10px; }
+.notice.info { background:#0f1a33; color:#dbe2f9; }
+.note { background:#111326; color:#cfd4e1; }
+.tip { background:#0f1e18; color:#cfeee3; border-color:rgba(0,184,148,.35); }
+.note.warn { background:#231c0f; color:#ffe1ba; border-color:rgba(243,156,18,.45); }
+
+/* 표 보완 */
+.table.small th, .table.small td { padding:10px; font-size:13px; }
+
+/* 세부 타이포 및 여백 */
+h3 code, h4 code { font-size:.95em; }
+.hero-visual .badges .badge code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }

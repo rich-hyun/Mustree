@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>API 설명서 · 머스트리 네트워크</title>
+  <meta name="description" content="국민은행 과제: RWARights 스마트 컨트랙트를 REST API로 제공하는 문서" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body class="home">
+  <!-- ✅ 헤더 래퍼 정상화 -->
+  <header class="app-header">
+    <div class="container app-header-inner">
+      <!-- ↓↓↓ 이 블록은 요청대로 절대 수정하지 않음 ↓↓↓ -->
+      <div class="hdr-left">
+        <h1>머스트리 네트워크</h1>
+        <nav class="menu">
+          <a href="./index.html">홈</a>
+          <a href="./network.html">네트워크 생성 서비스</a>
+          <a href="./api.html" class="active">API 제공 서비스</a>
+          <a href="./api-guide.html">API 사용 설명</a>
+          <a href="./bridge.html">브릿지(준비중)</a>
+          <a href="./sbt.html">SBT 생성(준비중)</a>
+          <a href="./rwa.html">RWA 생성(준비중)</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== Hero ===== -->
+    <section class="hero hero-visual">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <p class="eyebrow">KB RWA API</p>
+        <h1>RWARights 컨트랙트를<br>REST API로 그대로</h1>
+        <p class="sub">
+          컨트랙트 <code>0x0178d0837e584a2a78b086695dd513b9ebc94a4e</code> 를 기반으로
+          <strong>매니저 설정</strong>·<strong>담보 생성</strong>·<strong>지분/열람권 표기</strong>·<strong>열람권 소각</strong>을 HTTP API로 제공합니다.
+        </p>
+        <div class="badges">
+          <span class="badge">OpenAPI 3.1</span>
+          <span class="badge">Auth: <code>x-api-key</code></span>
+          <span class="badge">Network: 전용 PoA</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== KB 과제 개요 ===== -->
+    <section class="section">
+      <div class="container grid cols-2">
+        <article class="card">
+          <h3>국민은행 과제 — 제공 범위</h3>
+          <ul>
+            <li><strong>매니저(머스트리) API</strong> — <code>setManager</code> : 전권자 설정</li>
+            <li><strong>대출 담보 생성 API</strong> — <code>createAsset</code> : 타이틀·뷰어 동시 발행</li>
+            <li><strong>지분/열람권 표기 API</strong> — <code>tokenURI</code> : 메타데이터/권리 표기</li>
+            <li><strong>열람권만 소각 API</strong> — <code>burnViewer</code> : Viewer 토큰 소각</li>
+            <li>그 외 표준 ERC‑721/조회/이벤트 API를 모두 제공</li>
+          </ul>
+          <p class="small">※ 민감 정보(docHash)는 이벤트로 노출하지 않으며, 권한 보유자만 조회 가능.</p>
+        </article>
+        <article class="card">
+          <h3>호출 정보</h3>
+          <ul>
+            <li>Base URL: <code id="baseUrlHint">http://localhost:8080/api/v1</code></li>
+            <li>인증: 요청 헤더 <code>x-api-key: &lt;YOUR_API_KEY&gt;</code></li>
+            <li>네트워크: 사내 EVM (RPC/CHAIN_ID는 서버 <code>.env</code> 설정)</li>
+          </ul>
+          <div class="notice">서버 게이트웨이 예시는 <code>server.js</code> 기준입니다. (ethers v5)</div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== 핵심 API (4가지) ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">핵심 API (KB 과제 납품 항목)</h2>
+
+        <div class="grid cols-2">
+          <!-- setManager -->
+          <article class="card">
+            <h3>1) 매니저 설정 API — <code>setManager</code></h3>
+            <p class="small">컨트랙트 소유자만 호출 가능. 매니저는 <code>createAsset</code> 등 운영 권한을 가집니다.</p>
+<pre class="mono small">
+POST /contract/set-manager
+Headers: x-api-key
+Body:
+{
+  "manager": "0xManager..."
+}
+Response: { "transactionHash": "...", "blockNumber": 123, "gasUsed": "..." }
+</pre>
+            <div class="cta-row">
+              <button class="btn" onclick="apiSetManager()">Try: setManager</button>
+              <button class="btn ghost" onclick="copyCurl('setManager')">cURL 복사</button>
+            </div>
+          </article>
+
+          <!-- createAsset -->
+          <article class="card">
+            <h3>2) 대출 담보 생성 API — <code>createAsset</code></h3>
+            <p class="small">타이틀(은행 보유)·뷰어(감정인 보유)를 동시에 발행합니다. <code>AssetCreated</code> 이벤트 발생.</p>
+<pre class="mono small">
+POST /assets
+Headers: x-api-key
+Body:
+{
+  "assetId": "1",
+  "viewerId": "1001",
+  "bank": "0xBank...",
+  "appraiser": "0xAppraiser...",
+  "borrower": "0xBorrower...",
+  "docHash": "ipfs://bafy.../report.pdf"
+}
+</pre>
+            <div class="cta-row">
+              <button class="btn" onclick="apiCreateAsset()">Try: createAsset</button>
+              <button class="btn ghost" onclick="copyCurl('createAsset')">cURL 복사</button>
+            </div>
+          </article>
+
+          <!-- tokenURI -->
+          <article class="card">
+            <h3>3) 지분/열람권 표기 API — <code>tokenURI</code></h3>
+            <p class="small">메타데이터(JSON Base64)를 반환합니다. Viewer/Title 여부, Ownership %, Asset/Token ID를 포함.</p>
+<pre class="mono small">
+GET /tokens/{tokenId}/uri
+Response:
+{ "tokenId": "1001", "tokenURI": "data:application/json;base64,eyJ..." }
+</pre>
+            <div class="cta-row">
+              <input id="decodeTokenId" class="kbd" placeholder="tokenId (예: 1)" style="width:160px">
+              <button class="btn" onclick="apiGetTokenURI()">Try &amp; Decode</button>
+              <button class="btn ghost" onclick="copyCurl('tokenURI')">cURL 복사</button>
+            </div>
+            <pre id="decodeOut" class="mono small" style="margin-top:8px"></pre>
+          </article>
+
+          <!-- burnViewer -->
+          <article class="card">
+            <h3>4) 열람권만 소각 API — <code>burnViewer</code></h3>
+            <p class="small">권한: 매니저 또는 타이틀(은행) 보유자. <code>ViewerBurned</code> 이벤트 발생.</p>
+<pre class="mono small">
+POST /assets/{assetId}/viewer/burn
+Headers: x-api-key
+</pre>
+            <div class="cta-row">
+              <input id="burnAssetId" class="kbd" placeholder="assetId (예: 1)" style="width:160px">
+              <button class="btn" onclick="apiBurnViewer()">Try: burnViewer</button>
+              <button class="btn ghost" onclick="copyCurl('burnViewer')">cURL 복사</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 전체 조회 API ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">조회 API 전체 목록</h2>
+        <table class="table" aria-label="조회 API">
+          <thead>
+            <tr><th>함수</th><th>HTTP</th><th>설명</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>assetOfViewer(viewerId)</code></td><td>GET <span class="kbd">/viewers/{viewerId}/asset</span></td><td>Viewer 토큰 → Asset ID 매핑</td></tr>
+            <tr><td><code>balanceOf(owner)</code></td><td>GET <span class="kbd">/accounts/{owner}/balance</span></td><td>주소가 보유한 NFT 개수</td></tr>
+            <tr><td><code>debugAsset(assetId)</code></td><td>GET <span class="kbd">/assets/{assetId}</span></td><td>은행/감정인/차주/ViewerId/exists</td></tr>
+            <tr><td><code>exists(tokenId)</code></td><td>GET <span class="kbd">/tokens/{tokenId}/exists</span></td><td>토큰 발행 여부</td></tr>
+            <tr><td><code>getApproved(tokenId)</code></td><td>GET <span class="kbd">/approvals/{tokenId}</span></td><td>개별 승인 주소</td></tr>
+            <tr><td><code>getViewerTokenId(assetId)</code></td><td>GET <span class="kbd">/assets/{assetId}/viewer-token-id</span></td><td>자산의 Viewer 토큰 ID</td></tr>
+            <tr><td><code>isApprovedForAll(owner,operator)</code></td><td>GET <span class="kbd">/approvals/is-approved-for-all?owner=&amp;operator=</span></td><td>전체 승인 여부</td></tr>
+            <tr><td><code>isViewer(tokenId)</code></td><td>GET <span class="kbd">/tokens/{tokenId}/is-viewer</span></td><td>Viewer/Title 구분</td></tr>
+            <tr><td><code>manager()</code></td><td>GET <span class="kbd">/contract/manager</span></td><td>현재 매니저 주소</td></tr>
+            <tr><td><code>name()</code></td><td>GET <span class="kbd">/contract/name</span></td><td>컬렉션 이름</td></tr>
+            <tr><td><code>owner()</code></td><td>GET <span class="kbd">/contract/owner</span></td><td>컨트랙트 소유자</td></tr>
+            <tr><td><code>ownerOf(tokenId)</code></td><td>GET <span class="kbd">/tokens/{tokenId}/owner</span></td><td>토큰 소유자</td></tr>
+            <tr><td><code>supportsInterface(interfaceId)</code></td><td>GET <span class="kbd">/contract/supports-interface/{interfaceId}</span></td><td>인터페이스 지원 여부</td></tr>
+            <tr><td><code>symbol()</code></td><td>GET <span class="kbd">/contract/symbol</span></td><td>토큰 심볼</td></tr>
+            <tr><td><code>tokenURI(tokenId)</code></td><td>GET <span class="kbd">/tokens/{tokenId}/uri</span></td><td>메타데이터(JSON Base64)</td></tr>
+            <tr><td><code>viewDocHash(assetId)</code></td><td>GET <span class="kbd">/assets/{assetId}/doc-hash</span></td><td>(권한 필요) 문서 해시</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== 이벤트 API ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">이벤트 API</h2>
+        <div class="grid cols-2">
+          <article class="card">
+            <h3>자산 생성</h3>
+            <p class="small"><code>AssetCreated(assetId, viewerTokenId, bank, appraiser, borrower)</code></p>
+<pre class="mono small">GET /events/asset-created?assetId=&viewerTokenId=&bank=&fromBlock=0&toBlock=latest</pre>
+          </article>
+          <article class="card">
+            <h3>열람 기록</h3>
+            <p class="small"><code>Viewed(assetId, by)</code></p>
+<pre class="mono small">GET /events/viewed?assetId=&by=&fromBlock=0&toBlock=latest</pre>
+          </article>
+          <article class="card">
+            <h3>뷰어 소각</h3>
+            <p class="small"><code>ViewerBurned(assetId, viewerTokenId, by)</code></p>
+<pre class="mono small">GET /events/viewer-burned?assetId=&viewerTokenId=&by=</pre>
+          </article>
+          <article class="card">
+            <h3>표준 이벤트</h3>
+            <p class="small"><code>Transfer/Approval/ApprovalForAll/OwnershipTransferred/ManagerSet</code></p>
+<pre class="mono small">GET /events/transfer?from=&to=&tokenId=
+GET /events/approval?owner=&approved=&tokenId=
+GET /events/approval-for-all?owner=&operator=
+GET /events/ownership-transferred?previousOwner=&newOwner=
+GET /events/manager-set?manager=
+</pre>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Try it ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">브라우저에서 바로 호출 (Try it)</h2>
+        <div class="card">
+          <div class="form" style="grid-template-columns: 5fr 3fr auto;">
+            <input id="baseUrl" type="text" placeholder="Base URL (예: http://localhost:8080/api/v1)" />
+            <input id="apiKey" type="text" placeholder="x-api-key" />
+            <button class="btn" onclick="ping()">GET /health</button>
+          </div>
+
+          <div class="grid cols-2" style="margin-top:12px">
+            <div class="field">
+              <label>setManager</label>
+              <input id="inManager" type="text" placeholder="0xManager..." />
+              <button class="btn" onclick="apiSetManager()">호출</button>
+            </div>
+
+            <div class="field">
+              <label>createAsset</label>
+              <textarea id="inCreateAsset" placeholder='{"assetId":"1","viewerId":"1001","bank":"0x...","appraiser":"0x...","borrower":"0x...","docHash":"ipfs://..."}'></textarea>
+              <button class="btn" onclick="apiCreateAsset()">호출</button>
+            </div>
+
+            <div class="field">
+              <label>tokenURI</label>
+              <input id="inTokenId" type="number" placeholder="tokenId" />
+              <button class="btn" onclick="apiGetTokenURI()">호출</button>
+            </div>
+
+            <div class="field">
+              <label>burnViewer</label>
+              <input id="inBurnAssetId" type="number" placeholder="assetId" />
+              <button class="btn" onclick="apiBurnViewer()">호출</button>
+            </div>
+          </div>
+
+          <pre id="out" class="mono small" style="margin-top:12px;min-height:160px">결과가 여기에 표시됩니다.</pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 복붙용 안내문 ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">협력사 안내문</h2>
+        <div class="card">
+          <p>
+            “국민은행 과제에서 요구하는 실물자산(RWA) 담보 흐름을, 온체인 스마트 컨트랙트 기반 <strong>HTTP API</strong>로 제공합니다.
+            매니저 설정 → 담보 생성(타이틀/뷰어 동시 발행) → 메타데이터/권리 표기 → 필요 시 열람권 소각까지
+            은행 시스템에서 지갑 없이 호출할 수 있도록 설계했습니다. 민감 데이터(docHash)는 권한자만 확인 가능하며,
+            모든 상태 변경은 이벤트로 감사 추적이 가능합니다.”
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container foot" style="display:flex;justify-content:space-between;align-items:center;gap:16px">
+      <div>© Mustree Network</div>
+      <nav>
+        <a href="./resources.html">문서</a>
+        <a href="./resources.html#security">보안 정책</a>
+        <a href="./customers.html#contact">문의</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // ===== 공통 ====
+    const $ = s => document.querySelector(s);
+    const fmt = (v) => typeof v === 'string' ? v : JSON.stringify(v, null, 2);
+    const getBase = () => ($('#baseUrl').value || 'http://localhost:8080/api/v1').replace(/\/$/,'');
+    const getHdrs = (json=true) => {
+      const h = { 'x-api-key': $('#apiKey').value || '' };
+      if (json) h['content-type'] = 'application/json';
+      return h;
+    };
+    const print = (obj, id='out') => { $( '#'+id ).textContent = fmt(obj); };
+
+    // ===== cURL 복사 =====
+    function copyCurl(kind){
+      const BASE = getBase(), KEY = $('#apiKey').value || '$API_KEY';
+      let curl = '';
+      if(kind==='setManager'){
+        const m = $('#inManager').value || '0xManager...';
+        curl = `curl -X POST "${BASE}/contract/set-manager" -H "x-api-key: ${KEY}" -H "content-type: application/json" -d '{"manager":"${m}"}'`;
+      } else if(kind==='createAsset'){
+        curl = `curl -X POST "${BASE}/assets" -H "x-api-key: ${KEY}" -H "content-type: application/json" -d '{"assetId":"1","viewerId":"1001","bank":"0xBank...","appraiser":"0xAppraiser...","borrower":"0xBorrower...","docHash":"ipfs://bafy..."}'`;
+      } else if(kind==='tokenURI'){
+        curl = `curl "${BASE}/tokens/1/uri" -H "x-api-key: ${KEY}"`;
+      } else if(kind==='burnViewer'){
+        curl = `curl -X POST "${BASE}/assets/1/viewer/burn" -H "x-api-key: ${KEY}"`;
+      }
+      navigator.clipboard.writeText(curl).then(()=>alert('cURL 복사 완료'));
+    }
+
+    // ===== Try It ====
+    async function ping(){
+      try{
+        const r = await fetch(`${getBase()}/health`, { headers:getHdrs(false) });
+        print(await r.json());
+      }catch(e){ print({ error: e.message || e }); }
+    }
+
+    async function apiSetManager(){
+      const body = { manager: $('#inManager').value || '0xManager...' };
+      try{
+        const r = await fetch(`${getBase()}/contract/set-manager`, { method:'POST', headers:getHdrs(), body: JSON.stringify(body) });
+        print(await r.json());
+      }catch(e){ print({ error: e.message || e }); }
+    }
+
+    async function apiCreateAsset(){
+      let body;
+      try{ body = JSON.parse($('#inCreateAsset').value || '{}'); }
+      catch{ return print({ error:'JSON Body 를 확인하세요' }); }
+      try{
+        const r = await fetch(`${getBase()}/assets`, { method:'POST', headers:getHdrs(), body: JSON.stringify(body) });
+        print(await r.json());
+      }catch(e){ print({ error: e.message || e }); }
+    }
+
+    // tokenURI → JSON 디코드
+    function decodeTokenURI(dataURI){
+      try{
+        const i = dataURI.indexOf('base64,');
+        if(i<0) return { error:'base64 접두어가 없습니다' };
+        const b64 = dataURI.slice(i+7);
+        const jsonStr = atob(b64);
+        return JSON.parse(jsonStr);
+      }catch(e){ return { error:'디코드 실패', detail: String(e) }; }
+    }
+
+    async function apiGetTokenURI(){
+      const tokenId = $('#decodeTokenId')?.value || $('#inTokenId')?.value || '1';
+      try{
+        const r = await fetch(`${getBase()}/tokens/${tokenId}/uri`, { headers:getHdrs(false) });
+        const data = await r.json();
+        print(data);
+        const decoded = decodeTokenURI(data?.tokenURI || '');
+        if ($('#decodeOut')) { $('#decodeOut').textContent = fmt(decoded); }
+      }catch(e){
+        print({ error: e.message || e });
+        if ($('#decodeOut')) $('#decodeOut').textContent = '';
+      }
+    }
+
+    async function apiBurnViewer(){
+      const assetId = $('#burnAssetId')?.value || $('#inBurnAssetId')?.value || '1';
+      try{
+        const r = await fetch(`${getBase()}/assets/${assetId}/viewer/burn`, { method:'POST', headers:getHdrs() });
+        print(await r.json());
+      }catch(e){ print({ error: e.message || e }); }
+    }
+  </script>
+</body>
+</html>

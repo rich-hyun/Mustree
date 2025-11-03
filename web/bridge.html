@@ -1,0 +1,98 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>브릿지 · MST ↔ PT</title>
+  <meta name="description" content="담보비율 C=10 기준으로 MST를 잠그고 PT를 발행하거나, 미사용 PT를 환매하는 브릿지" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="container app-header-inner">
+      <!-- 요청: 이 블록은 절대 수정하지 않음 -->
+      <div class="hdr-left">
+        <h1>머스트리 네트워크</h1>
+        <nav class="menu">
+          <a href="./index.html">홈</a>
+          <a href="./network.html">네트워크 생성 서비스</a>
+          <a href="./api.html">API 제공 서비스</a>
+          <a href="./api-guide.html">API 사용 설명</a>
+          <a href="./bridge.html" class="active">브릿지(준비중)</a>
+          <a href="./sbt.html">SBT 생성(준비중)</a>
+          <a href="./rwa.html">RWA 생성(준비중)</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container">
+        <p class="eyebrow">Bridge</p>
+        <h1>MST를 잠그고 PT를 발행하거나<br>미사용 PT를 환매하세요</h1>
+        <p class="sub">전역 담보비율 <b>C=10</b>을 적용합니다. 모든 수수료는 MST로 결제됩니다.</p>
+        <div class="badges">
+          <span class="badge">PT = 예치 MST × r / C</span>
+          <span class="badge">기본 r: 500 (A/B=100)</span>
+          <span class="badge">다운사이드 감액 금지</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container grid cols-2">
+        <article class="card">
+          <h3>MST → PT (락업 & 민팅)</h3>
+          <p class="small">예치한 MST에 비례하여 PT가 발행됩니다.</p>
+          <div class="form">
+            <div class="field"><label for="r1">발행비율 r</label><input id="r1" type="number" value="500"></div>
+            <div class="field"><label for="c1">담보비율 C</label><input id="c1" type="number" value="10"></div>
+            <div class="field"><label for="mstIn">예치할 MST</label><input id="mstIn" type="number" placeholder="예: 1000"></div>
+            <div class="field"><label for="ptOut1">발행될 PT</label><input id="ptOut1" type="text" class="mono" readonly></div>
+          </div>
+          <div class="cta-row"><button class="btn primary" id="calcMint">계산</button></div>
+        </article>
+
+        <article class="card">
+          <h3>PT → MST (환매)</h3>
+          <p class="small">미사용 PT만 환매 가능하며 수수료·쿨다운이 적용됩니다.</p>
+          <div class="form">
+            <div class="field"><label for="r2">발행비율 r</label><input id="r2" type="number" value="500"></div>
+            <div class="field"><label for="c2">담보비율 C</label><input id="c2" type="number" value="10"></div>
+            <div class="field"><label for="ptIn">환매할 PT</label><input id="ptIn" type="number" placeholder="예: 500000"></div>
+            <div class="field"><label for="mstOut2">돌려받는 MST (수수료 전)</label><input id="mstOut2" type="text" class="mono" readonly></div>
+          </div>
+          <div class="cta-row"><button class="btn" id="calcRedeem">계산</button></div>
+          <p class="note">* 실제 수령액은 브릿지 수수료/쿨다운 정책에 따라 달라질 수 있습니다.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="foot">
+      <div>© Mustree Network</div>
+      <nav>
+        <a href="./resources.html">문서</a>
+        <a href="./resources.html#security">보안 정책</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    const fmt = n => Number(n).toLocaleString('ko-KR');
+    document.getElementById('calcMint').addEventListener('click', ()=>{
+      const r=+r1.value||0, c=+c1.value||0, m=+mstIn.value||0;
+      if(!r||!c||!m){ ptOut1.value='입력값 확인'; return; }
+      ptOut1.value = fmt(m * r / c);
+    });
+    document.getElementById('calcRedeem').addEventListener('click', ()=>{
+      const r=+r2.value||0, c=+c2.value||0, p=+ptIn.value||0;
+      if(!r||!c||!p){ mstOut2.value='입력값 확인'; return; }
+      mstOut2.value = fmt(p * c / r);
+    });
+  </script>
+</body>
+</html>

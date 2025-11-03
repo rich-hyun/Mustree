@@ -1,0 +1,52 @@
+﻿name: Debug Pages workspace
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Show git info
+        run: |
+          echo "PWD: $(pwd)"
+          echo "Current branch:"
+          git branch --show-current || true
+          echo "Git status:"
+          git status --porcelain || true
+          echo "List repo root (ls -la):"
+          ls -la
+          echo "List C_jhkim (if exists):"
+          ls -la C_jhkim || true
+          echo "List C_jhkim/web (if exists):"
+          ls -la C_jhkim/web || true
+          echo "Count files under C_jhkim/web:"
+          find C_jhkim/web -maxdepth 3 -type f | wc -l || true
+          echo "Disk usage of C_jhkim/web:"
+          du -sh C_jhkim/web || true
+
+      - name: Try tar create of path
+        run: |
+          set -x
+          if [ -d "C_jhkim/web" ]; then
+            tar -czf web_debug.tar.gz -C C_jhkim web || true
+            echo "Tar created, size:"
+            ls -lh web_debug.tar.gz || true
+            tar -tzf web_debug.tar.gz | head -n 20 || true
+          else
+            echo "C_jhkim/web not found"
+            ls -la || true
+          fi
+
+      - name: Upload debug artifact (optional)
+        uses: actions/upload-artifact@v4
+        with:
+          name: debug-web-tar
+          path: web_debug.tar.gz

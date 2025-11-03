@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PoA 네트워크 생성</title>
+  <meta name="description" content="GT 2,000개/체인, MST 담보형 PT 발행, C=10 글로벌 담보 정책으로 전용 PoA 네트워크를 개설하세요." />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="container app-header-inner">
+      <!-- 요청: 이 블록은 절대 수정하지 않음 -->
+      <div class="hdr-left">
+        <h1>머스트리 네트워크</h1>
+        <nav class="menu">
+          <a href="./index.html">홈</a>
+          <a href="./network.html" class="active">네트워크 생성 서비스</a>
+          <a href="./api.html">API 제공 서비스</a>
+          <a href="./api-guide.html">API 사용 설명</a>
+          <a href="./bridge.html">브릿지(준비중)</a>
+          <a href="./sbt.html">SBT 생성(준비중)</a>
+          <a href="./rwa.html">RWA 생성(준비중)</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container">
+        <p class="eyebrow">Network</p>
+        <h1>귀사 전용 PoA 체인을<br>최대 1시간 내 개설합니다</h1>
+        <p class="sub">GT 2,000개(당사 1,000·귀사 1,000)로 운영하고, PT는 <b>MST 담보</b>로만 발행(C=10)됩니다.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container grid cols-3">
+        <article class="card"><h3>1) 온보딩</h3><p>KYC/법인확인 → 라이선스 계약 → 권한 지갑(멀티시그) 등록.</p></article>
+        <article class="card"><h3>2) 체인 생성</h3><p>검증자 세팅, 체인 파라미터, GT 2,000개 배분(1,000·1,000).</p></article>
+        <article class="card"><h3>3) 사용 한도 설정</h3><p>예치 MST에 따라 월 사용 상한(PT)이 자동 산정됩니다.</p></article>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">필요 예치 계산</h2>
+        <p class="small">공식: <span class="kbd">필요 MST = 필요한 PT × C / r</span> (기본 r=500, C=10)</p>
+        <div class="form">
+          <div class="field"><label for="rN">r (PT/MST)</label><input id="rN" type="number" value="500"></div>
+          <div class="field"><label for="cN">C (담보비율)</label><input id="cN" type="number" value="10"></div>
+          <div class="field"><label for="ptNeed">월간 필요한 PT</label><input id="ptNeed" type="number" placeholder="예: 2000000"></div>
+          <div class="field"><label for="mstNeed">필요 예치 MST</label><input id="mstNeed" class="mono" type="text" readonly></div>
+        </div>
+        <div class="cta-row"><button class="btn primary" id="calcN">계산</button><a class="btn" href="./bridge.html">지금 예치하기</a></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container grid cols-2">
+        <article class="card">
+          <h3>거버넌스(GT)</h3>
+          <ul>
+            <li>검증자 추가/삭제, 키 교체</li>
+            <li>브릿지/수수료/오라클 등 중요 파라미터 변경</li>
+            <li>응급 정지/재개(멀티시그) · 업그레이드 승인</li>
+            <li>총 2,000개(우리 1,000 · 귀사 1,000)</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>요금 & 혜택</h3>
+          <ul>
+            <li>모든 수수료는 MST로 결제</li>
+            <li>수수료 수익 최대 20% 쉐어(월 정산)</li>
+            <li>화이트라벨 익스플로러/지갑 제공</li>
+            <li>SLA 99.9%+, 감사로그/KYC 옵션</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="foot">
+      <div>© Mustree Network</div>
+      <nav><a href="./resources.html">문서</a><a href="./resources.html#security">보안 정책</a></nav>
+    </div>
+  </footer>
+
+  <script>
+    const fmt = n => Number(n).toLocaleString('ko-KR');
+    document.getElementById('calcN').addEventListener('click', ()=>{
+      const r=+rN.value||0, c=+cN.value||0, p=+ptNeed.value||0;
+      mstNeed.value = (!r||!c||!p) ? '입력값 확인' : fmt(p*c/r);
+    });
+  </script>
+</body>
+</html>

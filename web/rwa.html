@@ -1,0 +1,787 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RWA 생성 및 관리</title>
+  <meta name="description" content="실물자산 토큰화(RWA) 생성, 파일 업로드, 접근 관리 및 조회" />
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="container app-header-inner">
+      <!-- 요청: 이 블록은 절대 수정하지 않음 -->
+      <div class="hdr-left">
+        <h1>머스트리 네트워크</h1>
+        <nav class="menu">
+          <a href="./index.html">홈</a>
+          <a href="./network.html">네트워크 생성 서비스</a>
+          <a href="./api.html">API 제공 서비스</a>
+          <a href="./api-guide.html">API 사용 설명</a>
+          <a href="./bridge.html">브릿지(준비중)</a>
+          <a href="./sbt.html">SBT 생성(준비중)</a>
+          <a href="./rwa.html" class="active">RWA 생성(준비중)</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container">
+        <p class="eyebrow">RWA & File Management</p>
+        <h1>실물자산 토큰화 및 데이터 관리</h1>
+        <p class="sub">파일 업로드, 접근 제어, RWA 토큰 발행 등 모든 기능을 온체인에서 관리하세요.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div class="max-w-4xl mx-auto">
+          <div class="flex justify-center gap-4 mb-8">
+            <button onclick="showSection('business')" class="btn primary">Business Section</button>
+            <button onclick="showSection('measurement')" class="btn">3D Measurement (개발중)</button>
+          </div>
+
+          <div id="business-section">
+            <div class="card mb-6">
+              <h2 class="text-xl font-bold mb-4">1. 지갑 연결</h2>
+              <p class="mb-2" id="wallet-status">메타마스크 지갑을 연결하세요:</p>
+              <div class="flex gap-3">
+                <button onclick="connectWallet()" class="btn">지갑 연결</button>
+                <button onclick="changeWallet()" class="btn" style="background-color:#f59e0b;">지갑 변경</button>
+              </div>
+              <p id="eth-balance" class="text-blue-600 font-semibold mt-2"></p>
+            </div>
+
+            <div class="card mb-6">
+              <h2 class="text-xl font-bold mb-4">2. 파일 업로드 및 해시 저장</h2>
+              <input id="file-input" type="file" class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-violet-50 file:text-violet-700 hover:file:bg-violet-100"/>
+              <button type="button" onclick="uploadFile(event)" class="btn primary mt-4">업로드</button>
+              <pre id="upload-result" class="mono mt-2"></pre>
+            </div>
+            
+            <div class="card mb-6">
+              <h2 class="text-xl font-bold mb-4">3. 트랜잭션 및 접근 관리</h2>
+
+              <div class="mb-4 pb-4 border-b">
+                <label class="block font-semibold mb-2">1. 해시 블록체인에 저장</label>
+                <div class="form" style="grid-template-columns: 1fr 1fr auto; gap: 8px;">
+                  <input type="text" id="storeHashInput" placeholder="파일 해시 입력" />
+                  <input type="text" id="storeFilenameInput" placeholder="파일 이름 입력 (예: report.pdf)" />
+                  <button onclick="storeHashOnChain()" class="btn primary">저장</button>
+                </div>
+                <pre id="result" class="mono mt-2"></pre>
+              </div>
+
+              <div class="mb-4 pb-4 border-b">
+                <label class="block font-semibold mb-2">2. 파일 접근 요청</label>
+                <div class="form" style="grid-template-columns: 1fr; gap: 8px;">
+                  <input type="text" id="requestOwnerInput" placeholder="파일 소유자 주소" />
+                  <input type="text" id="requestFilenameInput" placeholder="파일 이름" />
+                  <input type="text" id="nicknameInput" placeholder="본인 닉네임" />
+                  <button onclick="requestAccessWithNickname()" class="btn primary">요청</button>
+                </div>
+                <pre id="access-result" class="mono mt-2"></pre>
+              </div>
+              
+              <div class="mb-4 pb-4 border-b">
+                <label class="block font-semibold mb-2">3. 접근 요청 승인</label>
+                <div class="form" style="grid-template-columns: 1fr; gap: 8px;">
+                  <input type="text" id="approveFilenameInput" placeholder="파일 이름" />
+                  <input type="text" id="viewerAddressInput" placeholder="요청자 지갑 주소" />
+                  <input type="text" id="approveNicknameInput" placeholder="요청자 닉네임" />
+                  <button onclick="approveAccess()" class="btn primary">승인</button>
+                </div>
+                <pre id="approve-result" class="mono mt-2"></pre>
+              </div>
+              
+              <div class="mb-4 pb-4 border-b">
+                <label class="block font-semibold mb-2">4. 해시 조회 및 다운로드</label>
+                <div class="form" style="grid-template-columns: 1fr auto;">
+                  <input type="text" id="getHashFilenameInput" placeholder="파일 이름"/>
+                  <button onclick="getHashFromEvent()" class="btn primary">해시 조회</button>
+                </div>
+                 <pre id="get-hash-result" class="mono mt-2"></pre>
+                 <div class="form mt-2" style="grid-template-columns: 1fr auto;">
+                   <input type="text" id="downloadHashInput" placeholder="파일 해시 입력" />
+                   <button onclick="downloadByHash()" class="btn">PDF 다운로드</button>
+                 </div>
+              </div>
+            </div>
+            
+            <div class="card mb-6">
+                <h2 class="text-xl font-bold mb-4">4. 데이터 조회</h2>
+                <div class="mb-4 pb-4 border-b">
+                  <label class="block font-semibold mb-2">파일 접근 요청 목록 조회 (관리자용)</label>
+                  <div class="form" style="grid-template-columns: 1fr auto;">
+                    <input type="text" id="getAccessRequestsInput" placeholder="파일 이름"/>
+                    <button onclick="getAccessRequests()" class="btn">조회</button>
+                  </div>
+                  <div id="accessRequestList" class="mt-3 text-sm"></div>
+                </div>
+                <div class="mb-4 pb-4 border-b">
+                  <label class="block font-semibold mb-2">승인된 사용자 목록 조회</label>
+                  <div class="form" style="grid-template-columns: 1fr auto;">
+                    <input type="text" id="getApprovedInput" placeholder="파일 이름"/>
+                    <button onclick="getApprovedViewers()" class="btn">조회</button>
+                  </div>
+                  <div id="approvedViewerList" class="mt-3 text-sm"></div>
+                </div>
+                <div class="mb-4 pb-4 border-b">
+                  <label class="block font-semibold mb-2">전체 열람 로그 조회 (소유자용)</label>
+                   <div class="form" style="grid-template-columns: 1fr auto;">
+                    <input type="text" id="getAllAccessLogInput" placeholder="파일 이름"/>
+                    <button onclick="getAllAccessLog()" class="btn">조회</button>
+                  </div>
+                  <div id="accessLogList" class="mt-3 text-sm"></div>
+                </div>
+            </div>
+
+            <div class="card mb-6">
+              <h2 class="text-xl font-bold mb-4">5. RWA 토큰 생성 및 관리</h2>
+              <div id="rwa-token-form">
+                <label class="block text-sm font-medium mb-1">Filename</label>
+                <input id="rwaFilename" type="text" placeholder="예: building_A" class="w-full border rounded p-2 mb-4" />
+
+                <label class="block text-sm font-medium mb-1">Owner Count</label>
+                <select id="ownerCount" onchange="renderOwnerInputs()" class="w-full border rounded p-2 mb-4">
+                  <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+                <div id="ownerInputs" class="space-y-2 mb-4"></div>
+                <div id="shareInputs" class="space-y-2 mb-4"></div>
+
+                <label class="block text-sm font-medium mb-1">Access Holder Count</label>
+                <select id="accessHolderCount" onchange="renderAccessInputs()" class="w-full border rounded p-2 mb-2">
+                  <option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option>
+                </select>
+                <div id="accessInputs" class="space-y-2 mb-4"></div>
+                <button onclick="createRWAToken()" class="btn primary">RWA 토큰 등록</button>
+              </div>
+              
+              <div class="mt-6 pt-4 border-t">
+                 <label class="block font-semibold mb-2">RWA 토큰 주소 조회</label>
+                 <div class="form" style="grid-template-columns: 1fr auto;">
+                    <input type="text" id="tokenAddressFilenameInput" placeholder="Filename 입력"/>
+                    <button onclick="showTokenAddress()" class="btn">주소 조회</button>
+                 </div>
+                 <pre id="tokenAddressResult" class="mono mt-2"></pre>
+              </div>
+
+              <div class="mt-6 pt-4 border-t">
+                <label class="block font-semibold mb-2">내 RWA 토큰 보유 목록</label>
+                <button onclick="listOwnedRWATokens()" class="btn primary">보유 토큰 조회</button>
+                <div id="ownedRWATokenList" class="mt-3 text-sm space-y-3"></div>
+              </div>
+
+               <div class="mt-6 pt-4 border-t">
+                <h2 class="text-md font-bold mb-2">🔐 접근권 수동 확인</h2>
+                <div class="form" style="grid-template-columns: 1fr 1fr auto;">
+                  <input type="text" id="accessCheckFilename" placeholder="파일 이름"/>
+                  <input type="text" id="accessCheckUser" placeholder="지갑 주소 (선택사항)"/>
+                  <button onclick="checkAccessManually()" class="btn">확인</button>
+                </div>
+                <div id="manualAccessCheckResult" class="mt-2"></div>
+              </div>
+            </div>
+          </div>
+
+          <div id="measurement-section" style="display: none;">
+            <div class="card text-center">
+              <h2 class="text-2xl font-bold text-gray-700">🚧 시스템 개발중</h2>
+              <p class="text-gray-500 mt-2">이 기능은 현재 개발 중입니다.</p>
+            </div>
+          </div>
+        </div>
+        </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="foot">
+      <div>© Mustree Network</div>
+      <nav><a href="./resources.html">문서</a><a href="./resources.html#security">보안 정책</a></nav>
+    </div>
+  </footer>
+
+  <script>
+    // ================================
+    // 1. 초기 설정 (상수 및 ABI)
+    // ================================
+    let contract;
+    const CONTRACT_ADDRESS = "0x313601af752fb9de89df1a31e12e30c96718a9d7";
+
+    // ✅ [신규] JavaScript 코드에서 사용하는 함수들로 새로 구성한 ABI
+    const CONTRACT_ABI = [
+        {"name": "storeHash", "type": "function", "inputs": [{"name": "hash", "type": "string"}, {"name": "filename", "type": "string"}], "stateMutability": "nonpayable"},
+        {"name": "requestAccessWithNickname", "type": "function", "inputs": [{"name": "owner", "type": "address"}, {"name": "filename", "type": "string"}, {"name": "nickname", "type": "string"}], "stateMutability": "nonpayable"},
+        {"name": "hasUserRequested", "type": "function", "inputs": [{"name": "owner", "type": "address"}, {"name": "filename", "type": "string"}, {"name": "requester", "type": "address"}], "stateMutability": "view", "outputs": [{"type": "bool"}]},
+        {"name": "approveAccess", "type": "function", "inputs": [{"name": "filename", "type": "string"}, {"name": "requester", "type": "address"}, {"name": "nickname", "type": "string"}], "stateMutability": "nonpayable"},
+        {"name": "getHash", "type": "function", "inputs": [{"name": "filename", "type": "string"}], "stateMutability": "view", "outputs": [{"type": "string"}]},
+        {"name": "manager", "type": "function", "inputs": [], "stateMutability": "view", "outputs": [{"type": "address"}]},
+        {"name": "fileOwner", "type": "function", "inputs": [{"name": "filename", "type": "string"}], "stateMutability": "view", "outputs": [{"type": "address"}]},
+        {"name": "getAccessRequests", "type": "function", "inputs": [{"name": "owner", "type": "address"}, {"name": "filename", "type": "string"}], "stateMutability": "view", "outputs": [{"type": "address[]"}]},
+        {"name": "getApprovedViewers", "type": "function", "inputs": [{"name": "filename", "type": "string"}], "stateMutability": "view", "outputs": [{"type": "address[]"}]},
+        {"name": "getViewers", "type": "function", "inputs": [{"name": "filename", "type": "string"}], "stateMutability": "view", "outputs": [{"type": "tuple[]", "components": [{"name": "viewer", "type": "address"}, {"name": "hash", "type": "string"}, {"name": "timestamp", "type": "uint256"}]}]},
+        {"name": "registerRWAWithAccess", "type": "function", "inputs": [{"name": "filename", "type": "string"}, {"name": "owners", "type": "address[]"}, {"name": "shares", "type": "uint256[]"}, {"name": "accessHolders", "type": "address[]"}], "stateMutability": "nonpayable"},
+        {"name": "getTokenAddress", "type": "function", "inputs": [{"name": "filename", "type": "string"}], "stateMutability": "view", "outputs": [{"type": "address"}]},
+        {"name": "getAllFilenameCount", "type": "function", "inputs": [], "stateMutability": "view", "outputs": [{"type": "uint256"}]},
+        {"name": "allFilenames", "type": "function", "inputs": [{"name": "index", "type": "uint256"}], "stateMutability": "view", "outputs": [{"type": "string"}]},
+        {"name": "hasAccess", "type": "function", "inputs": [{"name": "filename", "type": "string"}, {"name": "user", "type": "address"}], "stateMutability": "view", "outputs": [{"type": "bool"}]},
+    ];
+
+    const ERC20_ABI = [
+        {"constant": true, "inputs": [{"name": "owner", "type": "address"}], "name": "balanceOf", "outputs": [{"name": "balance", "type": "uint256"}], "type": "function"},
+        {"constant": true, "inputs": [], "name": "decimals", "outputs": [{"name": "", "type": "uint8"}], "type": "function"}
+    ];
+
+    // MetaMask 계정 변경 감지
+    if (typeof window.ethereum !== 'undefined') {
+      window.ethereum.on('accountsChanged', async (accounts) => {
+        if (accounts.length > 0) {
+          const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+          document.getElementById('wallet-status').innerText = `✅ 계정 변경: ${accounts[0]}`;
+          const balance = await provider.getBalance(accounts[0]);
+          const formatted = ethers.utils.formatEther(balance);
+          document.getElementById('eth-balance').innerText = `ETH 잔액 (Sepolia): ${formatted} ETH`;
+        } else {
+          document.getElementById('wallet-status').innerText = `❌ 지갑 연결 해제됨`;
+          document.getElementById('eth-balance').innerText = '';
+        }
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      setTimeout(() => {
+        if (typeof window.ethereum !== "undefined") {
+          console.log("✅ MetaMask is available.");
+          checkWalletConnection();
+        } else {
+          console.warn("❌ MetaMask not found.");
+        }
+      }, 300);
+    });
+
+    // ================================
+    // 2. 기본 유틸 함수
+    // ================================
+    async function getContractInstance() {
+      const provider = new ethers.providers.Web3Provider(window.ethereum);
+      const signer = provider.getSigner();
+      return new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+    }
+
+    function showSection(type) {
+      document.getElementById('business-section').style.display = type === 'business' ? 'block' : 'none';
+      document.getElementById('measurement-section').style.display = type === 'measurement' ? 'block' : 'none';
+    }
+
+    function downloadByHash() {
+      const hash = document.getElementById("downloadHashInput").value.trim();
+      if (!hash) {
+        alert("해시값을 입력해주세요.");
+        return;
+      }
+      // 연구실 서버 환경을 위해 상대 경로로 변경
+      window.open(`/download?hash=${hash}`, "_blank");
+    }
+
+    // ================================
+    // 3. 인증 관련 함수
+    // ================================
+    async function checkWalletConnection() {
+      if (typeof window.ethereum === 'undefined') return;
+      try {
+        const accounts = await window.ethereum.request({ method: "eth_accounts" });
+        if (accounts.length > 0) {
+            const address = accounts[0];
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+            
+            document.getElementById('wallet-status').innerText = `✅ 연결됨: ${address}`;
+            const balance = await provider.getBalance(address);
+            const formatted = ethers.utils.formatEther(balance);
+            document.getElementById('eth-balance').innerText = `ETH 잔액 (Sepolia): ${formatted} ETH`;
+        }
+      } catch (err) {
+        console.error("지갑 확인 실패:", err);
+      }
+    }
+    
+    async function connectWallet() {
+      if (typeof window.ethereum === 'undefined') {
+        alert("MetaMask not detected");
+        return;
+      }
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+        await provider.send("eth_requestAccounts", []);
+        const signer = provider.getSigner();
+        const address = await signer.getAddress();
+        contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+        document.getElementById('wallet-status').innerText = `✅ 연결됨: ${address}`;
+        const balance = await provider.getBalance(address);
+        const formatted = ethers.utils.formatEther(balance);
+        document.getElementById('eth-balance').innerText = `ETH 잔액 (Sepolia): ${formatted} ETH`;
+      } catch (err) {
+        console.error(err);
+        alert("지갑 연결에 실패했습니다.");
+      }
+    }
+
+    async function changeWallet() {
+        // connectWallet과 동일한 로직으로 처리 가능
+        await connectWallet();
+    }
+
+    // ================================
+    // 4. 파일 업로드 관련 함수
+    // ================================
+    async function uploadFile(event) {
+      event.preventDefault();
+      const fileInput = document.getElementById("file-input");
+      const file = fileInput.files[0];
+      const resultEl = document.getElementById("upload-result");
+
+      if (!file) {
+        alert("파일을 선택해주세요.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("file", file);
+      resultEl.innerText = "⏳ 업로드 중입니다...";
+
+      try {
+        // 연구실 서버 환경을 위해 상대 경로로 변경
+        const response = await fetch("/upload", {
+          method: "POST",
+          body: formData
+        });
+        const result = await response.json();
+        if (response.ok) {
+          resultEl.innerHTML = `✅ ${result.message}<br>🔑 해시값: ${result.hash}<br>🔗 트랜잭션 해시: ${result.tx_hash}<br>🔍 <a href="https://sepolia.etherscan.io/tx/${result.tx_hash}" target="_blank" class="text-blue-600 underline">Etherscan에서 확인</a>`;
+        } else {
+          resultEl.innerText = `❌ 업로드 실패: ${result.error}`;
+        }
+      } catch (err) {
+        console.error("Upload failed:", err);
+        resultEl.innerText = "❌ 업로드 중 오류가 발생했습니다.";
+      }
+    }
+
+    async function storeHashOnChain() {
+      const hash = document.getElementById("storeHashInput").value.trim();
+      const filename = document.getElementById("storeFilenameInput").value.trim();
+      const resultEl = document.getElementById("result"); 
+
+      if (!hash || !filename) {
+        alert("해시값과 파일 이름을 모두 입력해주세요.");
+        return;
+      }
+      if (!contract) {
+        alert("지갑을 먼저 연결해주세요.");
+        return;
+      }
+      try {
+        resultEl.innerText = "⏳ 트랜잭션 전송 중...";
+        const tx = await contract.storeHash(hash, filename);
+        await tx.wait();
+        resultEl.innerHTML = `✅ 트랜잭션 전송됨!<br>🧾 Tx Hash: <code>${tx.hash}</code><br>🔍 <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" rel="noopener noreferrer">Etherscan에서 확인</a>`;
+      } catch (err) {
+        console.error(err);
+        resultEl.innerText = `❌ 오류 발생: ${err.message || err}`;
+      }
+    }
+
+    // ================================
+    // 5. 접근 요청/승인 관련 함수
+    // ================================
+    async function requestAccessWithNickname() {
+      const owner = document.getElementById("requestOwnerInput").value.trim();
+      const filename = document.getElementById("requestFilenameInput").value.trim();
+      const nickname = document.getElementById("nicknameInput").value.trim();
+      const resultEl = document.getElementById("access-result");
+      
+      if (!owner || !filename || !nickname) {
+        alert("모든 필드를 입력해주세요.");
+        return;
+      }
+      if (!contract) {
+        alert("지갑을 먼저 연결해주세요.");
+        return;
+      }
+
+      try {
+        resultEl.innerText = "⏳ 접근 요청 중입니다...";
+        const tx = await contract.requestAccessWithNickname(owner, filename, nickname);
+        await tx.wait();
+        resultEl.innerHTML = `✅ 접근 요청 완료!<br>🔗 트랜잭션 해시: <code>${tx.hash}</code><br>🔍 <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" class="text-blue-600 underline">Etherscan에서 확인</a>`;
+      } catch (err) {
+        console.error("❌ 접근 요청 실패:", err);
+        resultEl.innerText = `❌ 오류 발생: ${err.message || err}`;
+      }
+    }
+
+    async function approveAccess() {
+      const filename = document.getElementById("approveFilenameInput").value.trim();
+      const requester = document.getElementById("viewerAddressInput").value.trim();
+      const nickname = document.getElementById("approveNicknameInput").value.trim();
+      const resultEl = document.getElementById("approve-result");
+
+      if (!filename || !requester || !nickname) {
+        alert("모든 필드를 입력해주세요.");
+        return;
+      }
+      if (!contract) {
+        alert("지갑을 먼저 연결해주세요.");
+        return;
+      }
+
+      try {
+        resultEl.innerText = "⏳ 접근 승인 중입니다...";
+        const tx = await contract.approveAccess(filename, requester, nickname);
+        await tx.wait();
+        resultEl.innerHTML = `✅ 접근 승인 완료!<br>🧾 Tx Hash: <code>${tx.hash}</code><br>🔍 <a href="https://sepolia.etherscan.io/tx/${tx.hash}" target="_blank" rel="noopener noreferrer">Etherscan에서 확인</a>`;
+      } catch (err) {
+        console.error("❌ 접근 승인 실패:", err);
+        resultEl.innerText = `❌ 오류 발생: ${err.message || err}`;
+      }
+    }
+
+    async function getHashFromEvent() {
+      const filename = document.getElementById("getHashFilenameInput").value.trim();
+      const resultEl = document.getElementById("get-hash-result");
+
+      if (!filename) {
+        alert("파일 이름을 입력해주세요.");
+        return;
+      }
+      if (!contract) {
+        alert("지갑을 먼저 연결해주세요.");
+        return;
+      }
+      try {
+        resultEl.innerText = "⏳ 해시 조회 중...";
+        // getHash는 view 함수이므로 트랜잭션이 발생하지 않음
+        const hash = await contract.getHash(filename);
+        if (hash) {
+           resultEl.innerText = `📦 해당 파일 해시: ${hash}`;
+        } else {
+           resultEl.innerText = "❌ 해시를 찾을 수 없습니다.";
+        }
+      } catch (err) {
+        console.error("❌ 해시 조회 실패:", err);
+        resultEl.innerText = `❌ 오류 발생: ${err.message || err}`;
+      }
+    }
+
+    // ================================
+    // 6. 조회 기능 함수들
+    // ================================
+    async function getAccessRequests() {
+      const filename = document.getElementById("getAccessRequestsInput").value.trim();
+      if (!filename) {
+        alert("파일 이름을 입력해주세요.");
+        return;
+      }
+      if (!contract) {
+        alert("지갑을 먼저 연결해주세요.");
+        return;
+      }
+
+      try {
+        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+        const currentUser = accounts[0];
+        const managerAddress = await contract.manager();
+        if (currentUser.toLowerCase() !== managerAddress.toLowerCase()) {
+          alert("이 기능은 관리자만 실행할 수 있습니다.");
+          return;
+        }
+
+        const ownerAddress = await contract.fileOwner(filename);
+        const requestList = await contract.getAccessRequests(ownerAddress, filename);
+        showAccessRequests(requestList);
+      } catch (err) {
+        console.error("❌ 요청 목록 조회 실패:", err);
+        alert("요청 목록 조회 중 오류 발생");
+      }
+    }
+
+    function showAccessRequests(addresses) {
+      const container = document.getElementById("accessRequestList");
+      container.innerHTML = "";
+      if (addresses.length === 0) {
+        container.textContent = "요청된 주소가 없습니다.";
+        return;
+      }
+      const ul = document.createElement("ul");
+      ul.className = "list-disc pl-5";
+      addresses.forEach(addr => {
+        const li = document.createElement("li");
+        li.textContent = addr;
+        ul.appendChild(li);
+      });
+      container.appendChild(ul);
+    }
+
+    async function getApprovedViewers() {
+      const filename = document.getElementById("getApprovedInput").value.trim();
+      if (!filename) {
+        alert("파일 이름을 입력해주세요.");
+        return;
+      }
+      if (!contract) {
+        alert("지갑을 먼저 연결해주세요.");
+        return;
+      }
+      try {
+        const viewers = await contract.getApprovedViewers(filename);
+        showApprovedViewers(viewers);
+      } catch (err) {
+        console.error("❌ 승인자 목록 조회 실패:", err);
+        alert("승인자 목록 조회 중 오류 발생");
+      }
+    }
+
+    function showApprovedViewers(viewers) {
+      const container = document.getElementById("approvedViewerList");
+      container.innerHTML = "";
+      if (viewers.length === 0) {
+        container.textContent = "승인된 주소가 없습니다.";
+        return;
+      }
+      const ul = document.createElement("ul");
+      ul.className = "list-disc pl-5";
+      viewers.forEach(addr => {
+        const li = document.createElement("li");
+        li.textContent = addr;
+        ul.appendChild(li);
+      });
+      container.appendChild(ul);
+    }
+
+    async function getAllAccessLog() {
+      const filename = document.getElementById("getAllAccessLogInput").value.trim();
+      if (!filename) {
+        alert("파일 이름을 입력해주세요.");
+        return;
+      }
+      if (!contract) {
+        alert("지갑을 먼저 연결해주세요.");
+        return;
+      }
+      try {
+        const accounts = await ethereum.request({ method: "eth_requestAccounts" });
+        const currentUser = accounts[0];
+        const owner = await contract.fileOwner(filename);
+
+        if (currentUser.toLowerCase() !== owner.toLowerCase()) {
+          alert("이 파일의 소유자가 아니므로 열람 로그를 볼 수 없습니다.");
+          return;
+        }
+
+        const logs = await contract.getViewers(filename);
+        showAccessLog(logs);
+      } catch (err) {
+        console.error("❌ 열람 로그 조회 실패:", err);
+        alert("열람 로그 조회 중 오류 발생");
+      }
+    }
+
+    function showAccessLog(logs) {
+      const container = document.getElementById("accessLogList");
+      container.innerHTML = "";
+      if (logs.length === 0) {
+        container.textContent = "열람 기록이 없습니다.";
+        return;
+      }
+      const ul = document.createElement("ul");
+      logs.forEach((log) => {
+        const li = document.createElement("li");
+        const date = new Date(Number(log.timestamp) * 1000).toLocaleString();
+        li.innerHTML = `📄 <strong>${log.hash}</strong><br>🙋‍♂️ ${log.viewer}<br>🕒 ${date}`;
+        li.className = "mb-3 p-2 bg-gray-50 border rounded";
+        ul.appendChild(li);
+      });
+      container.appendChild(ul);
+    }
+
+    // ================================
+    // 7. RWA 토큰 관련 함수
+    // ================================
+    function renderOwnerInputs() {
+      const count = parseInt(document.getElementById("ownerCount").value);
+      const ownerInputs = document.getElementById("ownerInputs");
+      const shareInputs = document.getElementById("shareInputs");
+
+      ownerInputs.innerHTML = `<label class="font-medium text-sm">Owner Addresses</label>`;
+      shareInputs.innerHTML = `<label class="font-medium text-sm">Shares</label>`;
+
+      for (let i = 0; i < count; i++) {
+        ownerInputs.innerHTML += `<input type="text" id="owner_${i}" placeholder="0x..." class="w-full border rounded p-2" />`;
+        shareInputs.innerHTML += `<input type="number" id="share_${i}" placeholder="e.g. 20" class="w-full border rounded p-2" />`;
+      }
+    }
+
+    function renderAccessInputs() {
+      const count = parseInt(document.getElementById("accessHolderCount").value);
+      const accessInputs = document.getElementById("accessInputs");
+
+      accessInputs.innerHTML = `<label class="font-medium text-sm">Access Holders</label>`;
+      for (let i = 0; i < count; i++) {
+        accessInputs.innerHTML += `<input type="text" id="access_${i}" placeholder="0x..." class="w-full border rounded p-2 mb-1" />`;
+      }
+    }
+    // 페이지 로드 시 기본 입력창 생성
+    document.addEventListener('DOMContentLoaded', () => {
+        renderOwnerInputs();
+        renderAccessInputs();
+    });
+
+    async function createRWAToken() {
+      const filename = document.getElementById("rwaFilename").value;
+      const count = parseInt(document.getElementById("ownerCount").value);
+      const accessCount = parseInt(document.getElementById("accessHolderCount").value);
+      
+      if (!contract) { alert("지갑을 먼저 연결해주세요."); return; }
+      if (!filename) { alert("파일 이름을 입력해주세요."); return; }
+
+      const owners = [];
+      const shares = [];
+      const access = [];
+
+      for (let i = 0; i < count; i++) {
+        owners.push(document.getElementById(`owner_${i}`).value);
+        shares.push(parseInt(document.getElementById(`share_${i}`).value));
+      }
+      for (let i = 0; i < accessCount; i++) {
+        access.push(document.getElementById(`access_${i}`).value);
+      }
+      try {
+        const tx = await contract.registerRWAWithAccess(filename, owners, shares, access);
+        await tx.wait();
+        alert(`✅ RWA 토큰 생성 완료!\n📦 Tx Hash: ${tx.hash}`);
+      } catch (err) {
+        console.error("❌ RWA 생성 실패:", err);
+        alert("RWA 토큰 생성 실패: " + (err.reason || err.message || err));
+      }
+    }
+
+    async function showTokenAddress() {
+      const filename = document.getElementById("tokenAddressFilenameInput").value.trim();
+      const resultEl = document.getElementById("tokenAddressResult");
+      if (!filename) {
+        resultEl.innerText = "❌ 파일 이름을 입력해주세요.";
+        return;
+      }
+       if (!contract) { alert("지갑을 먼저 연결해주세요."); return; }
+
+      try {
+        const tokenAddress = await contract.getTokenAddress(filename);
+        if (tokenAddress === "0x0000000000000000000000000000000000000000") {
+          resultEl.innerText = "❌ 해당 파일에 대한 토큰 주소가 없습니다.";
+        } else {
+          resultEl.innerText = `✅ RWA Token Address:\n${tokenAddress}`;
+        }
+      } catch (err) {
+        console.error("❌ getTokenAddress 실패:", err);
+        resultEl.innerText = "❌ 오류 발생: " + (err.reason || err.message || err);
+      }
+    }
+
+    async function listOwnedRWATokens() {
+      const resultEl = document.getElementById("ownedRWATokenList");
+      resultEl.innerHTML = "⏳ 조회 중입니다...";
+      if (!contract) { alert("지갑을 먼저 연결해주세요."); return; }
+
+      try {
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const signer = provider.getSigner();
+        const user = await signer.getAddress();
+        const total = await contract.getAllFilenameCount();
+        const ownedList = [];
+
+        for (let i = 0; i < total; i++) {
+          const filename = await contract.allFilenames(i);
+          const tokenAddress = await contract.getTokenAddress(filename);
+          if (tokenAddress === "0x0000000000000000000000000000000000000000") continue;
+
+          const token = new ethers.Contract(tokenAddress, ERC20_ABI, provider);
+          const balance = await token.balanceOf(user);
+          
+          if (balance.gt(0)) {
+            const decimals = await token.decimals();
+            const readable = ethers.utils.formatUnits(balance, decimals);
+            const access = await contract.hasAccess(filename, user);
+            ownedList.push({ filename, tokenAddress, balance: readable, access });
+          }
+        }
+
+        if (ownedList.length === 0) {
+          resultEl.innerText = "❌ 보유 중인 RWA 토큰이 없습니다.";
+        } else {
+          resultEl.innerHTML = ownedList.map(item => `
+            <div class="p-4 border rounded bg-gray-50 mb-3 shadow-sm">
+              <div class="font-semibold text-lg">📁 ${item.filename}</div>
+              <div class="text-sm mt-1">💰 보유량: ${item.balance}</div>
+              <div class="text-sm mt-1">🔗 Token Address: <code>${item.tokenAddress}</code></div>
+              ${item.access 
+                ? `<div class="mt-2 text-green-700 font-semibold">✅ 접근권 보유
+                    <button onclick="downloadWithAccess('${item.filename}')" class="ml-3 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs">다운로드</button>
+                   </div>`
+                : `<div class="mt-2 text-gray-500">🔒 접근권 없음</div>`
+              }
+            </div>
+          `).join("");
+        }
+      } catch (err) {
+        console.error("❌ RWA 보유 토큰 조회 실패:", err);
+        resultEl.innerText = `❌ 오류 발생: ${err.message || err}`;
+      }
+    }
+    
+    async function downloadWithAccess(filename) {
+      if (!contract) { alert("지갑을 먼저 연결해주세요."); return; }
+      try {
+        const hash = await contract.getHash(filename);
+        window.open(`/download?hash=${hash}`, "_blank");
+      } catch (err) {
+        console.error("❌ 다운로드 실패:", err);
+        alert("다운로드 실패: " + (err.reason || err.message));
+      }
+    }
+
+    async function checkAccessManually() {
+      const filename = document.getElementById("accessCheckFilename").value.trim();
+      const userInput = document.getElementById("accessCheckUser").value.trim();
+      const resultEl = document.getElementById("manualAccessCheckResult");
+
+      if (!filename) {
+        resultEl.innerText = "❌ 파일 이름을 입력해주세요.";
+        return;
+      }
+      if (!contract) { alert("지갑을 먼저 연결해주세요."); return; }
+
+      try {
+        const signer = (new ethers.providers.Web3Provider(window.ethereum)).getSigner();
+        const user = userInput || await signer.getAddress();
+        
+        const access = await contract.hasAccess(filename, user);
+        if (access) {
+          resultEl.innerHTML = `✅ 접근권 있음. <button onclick="downloadWithAccess('${filename}')" class="ml-3 px-3 py-1 bg-green-600 text-white rounded hover:bg-green-700 text-xs">다운로드</button>`;
+        } else {
+          resultEl.innerText = "❌ 접근권 없음.";
+        }
+      } catch (err) {
+        console.error("접근권 확인 실패:", err);
+        resultEl.innerText = `❌ 오류 발생: ${err.reason || err.message || err}`;
+      }
+    }
+  </script>
+</body>
+</html>

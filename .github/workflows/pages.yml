@@ -1,0 +1,58 @@
+﻿name: Deploy static site to GitHub Pages
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  actions: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Prepare site folder
+        run: |
+          # 안전하게 빈 site 폴더 생성
+          rm -rf site || true
+          mkdir site
+          # C_jhkim/web 내부 모든 파일을 site 루트로 복사
+          if [ -d "C_jhkim/web" ]; then
+            cp -a C_jhkim/web/. site/
+          else
+            echo "ERROR: C_jhkim/web does not exist"
+            ls -la
+            exit 1
+          fi
+          echo "site contents:"
+          ls -la site | sed -n '1,200p'
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact (site contents)
+        uses: actions/upload-pages-artifact@v4
+        with:
+          # site 폴더(루트에 index.html이 오도록 복사했음)
+          path: ./site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

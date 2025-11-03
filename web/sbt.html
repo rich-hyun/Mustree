@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SBT 생성</title>
+  <meta name="description" content="전송 불가 Soulbound Token을 발행하고 가디언/타임락을 설정하는 데모" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+<body>
+  <header class="app-header">
+    <div class="container app-header-inner">
+      <!-- 요청: 이 블록은 절대 수정하지 않음 -->
+      <div class="hdr-left">
+        <h1>머스트리 네트워크</h1>
+        <nav class="menu">
+          <a href="./index.html">홈</a>
+          <a href="./network.html">네트워크 생성 서비스</a>
+          <a href="./api.html">API 제공 서비스</a>
+          <a href="./api-guide.html">API 사용 설명</a>
+          <a href="./bridge.html">브릿지(준비중)</a>
+          <a href="./sbt.html" class="active">SBT 생성(준비중)</a>
+          <a href="./rwa.html">RWA 생성(준비중)</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container">
+        <p class="eyebrow">Soulbound</p>
+        <h1>전송 불가 SBT로<br>장기 보존/복구 정책을 설계하세요</h1>
+        <p class="sub">가디언·타임락·메타데이터를 조합해 안전한 보관 증표를 발행합니다.</p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">SBT 생성 양식(프리뷰)</h2>
+        <div class="form">
+          <div class="field"><label for="owner">소유자 지갑</label><input id="owner" placeholder="0x..."></div>
+          <div class="field"><label for="label">라벨/제목</label><input id="label" placeholder="예: 회사 인증 SBT"></div>
+          <div class="field"><label for="guard">가디언(쉼표로 구분)</label><input id="guard" placeholder="0xabc..., 0xdef..."></div>
+          <div class="field"><label for="unlock">언락 시점(UTC, ISO)</label><input id="unlock" placeholder="2026-01-01T00:00:00Z"></div>
+          <div class="field" style="grid-column:span 12;"><label for="meta">메타데이터(JSON)</label><textarea id="meta" placeholder='{"purpose":"KYC","level":"gold"}'></textarea></div>
+        </div>
+        <div class="cta-row"><button class="btn primary" id="sbtBuild">프리뷰 생성</button></div>
+
+        <div class="card" style="margin-top:16px;">
+          <h3>발행 트랜잭션(샘플 스키마)</h3>
+          <pre id="sbtOut" class="mono" style="white-space:pre-wrap; margin:0;"></pre>
+          <p class="small">* 데모용 프리뷰입니다. 실제 배포 시 컨트랙트 주소/체인ID/서명 절차를 연결해야 합니다.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="foot">
+      <div>© Mustree Network</div>
+      <nav><a href="./resources.html">문서</a><a href="./resources.html#security">보안 정책</a></nav>
+    </div>
+  </footer>
+
+  <script>
+    const out = document.getElementById('sbtOut');
+    document.getElementById('sbtBuild').addEventListener('click', ()=>{
+      try{
+        const meta = meta.value ? JSON.parse(meta.value) : {};
+        const doc = {
+          type:"SBT_MINT",
+          nonTransferable:true,
+          contract:"SBT_VaultContract",
+          chain:"PoA",
+          to: owner.value || "",
+          label: label.value || "",
+          guardians: (guard.value||"").split(",").map(s=>s.trim()).filter(Boolean),
+          timelock: unlock.value || null,
+          metadata: meta
+        };
+        out.textContent = JSON.stringify(doc, null, 2);
+      }catch(e){
+        out.textContent = "메타데이터 JSON 형식이 올바르지 않습니다.";
+      }
+    });
+  </script>
+</body>
+</html>

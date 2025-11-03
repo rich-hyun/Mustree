@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>머스트리 네트워크 · MST 담보형 PoA</title>
+  <meta name="description" content="C=10 글로벌 담보, 총 스테이킹 30M MST 목표, 파트너가 늘수록 MST가 잠기는 구조의 PoA 전용 네트워크" />
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+<body class="home">
+  <!-- ✅ 헤더 래퍼 정상화 -->
+  <header class="app-header">
+    <div class="container app-header-inner">
+      <!-- ↓↓↓ 이 블록은 요청대로 절대 수정하지 않음 ↓↓↓ -->
+      <div class="hdr-left">
+        <h1>머스트리 네트워크</h1>
+        <nav class="menu">
+          <a href="./index.html" class="active">홈</a>
+          <a href="./network.html">네트워크 생성 서비스</a>
+          <a href="./api.html">API 제공 서비스</a>
+          <a href="./api-guide.html">API 사용 설명</a>
+          <a href="./bridge.html">브릿지(준비중)</a>
+          <a href="./sbt.html">SBT 생성(준비중)</a>
+          <a href="./rwa.html">RWA 생성(준비중)</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== Hero ===== -->
+    <section class="hero hero-visual">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <p class="eyebrow">MST 담보형 PoA</p>
+        <h1>협력사가 늘수록<br>더 많은 MST가 잠기는 구조</h1>
+        <p class="sub">
+          무담보 발행은 없습니다. <strong>C=10</strong> 담보 규칙과 <strong>다운사이드 감액 금지</strong>로
+          네트워크 전체 <strong>총 스테이킹 목표 30,000,000 MST</strong>를 달성합니다.
+        </p>
+        <div class="cta-row">
+          <a class="btn primary" href="./network.html">전용망 만들기</a>
+          <a class="btn" href="#policy">정책 보기</a>
+          <a class="btn ghost" href="./bridge.html">브릿지 열기</a>
+        </div>
+        <div class="badges">
+          <span class="badge">총발행 MST 100,000,000</span>
+          <span class="badge">글로벌 담보비율 C=10</span>
+          <span class="badge">월 사용 상한 = 예치 MST × r / C</span>
+          <span class="badge">GT 2,000개/체인 (1,000·1,000)</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 정책 핵심 ===== -->
+    <section id="policy" class="section">
+      <div class="container">
+        <h2 class="section-title">정책 핵심</h2>
+        <div class="grid cols-3">
+          <article class="card">
+            <h3>1) 담보·발행 원칙</h3>
+            <p class="lead">MST 담보로만 파트너 토큰(PT)을 발행합니다. <strong>무담보 발행 없음</strong>.</p>
+            <div class="formula">
+              <span class="kbd">PT = 예치 MST × r / C</span>
+              <span class="kbd">C(담보비율) = 10</span>
+              <span class="kbd">r: A/B=100, C/D/E=500</span>
+            </div>
+          </article>
+          <article class="card">
+            <h3>2) 사용 상한 & 리필</h3>
+            <p class="lead">월간 사용 상한은 발행식과 동일. 더 쓰려면 <strong>추가 예치</strong>가 필요합니다.</p>
+            <div class="formula">
+              <span class="kbd">월 상한(PT) = 예치 MST × r / C</span>
+              <span class="kbd">추가 예치 MST = 추가 PT × C / r</span>
+            </div>
+          </article>
+          <article class="card">
+            <h3>3) 락업·수수료</h3>
+            <p class="lead">모든 수수료/한도/프리미엄은 <strong>MST로만 결제</strong>. 사용된 PT는 <strong>자동 소각</strong>.</p>
+            <p class="small">다운사이드 감액 금지(Non‑Decreasing Collateral): 정책 변경으로 필요 담보가 낮아지더라도 기존 예치는 유지됩니다.</p>
+          </article>
+        </div>
+
+        <div class="notice" style="margin-top:14px">
+          <strong>거버넌스(GT)</strong>는 체인당 2,000개(우리 1,000 · 협력사 1,000). 밸리데이터/업그레이드/비상정지 등
+          운영 권한에만 사용되며 가스/결제 기능은 없습니다.
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 코호트별 조건 (C=10 일괄 적용) ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">코호트별 조건 (C=10 일괄 적용)</h2>
+        <p class="lead">아래 표는 <span class="kbd">총 스테이킹 30,000,000 MST</span> 달성을 위한
+          <strong>최저 예치(Floor)</strong>와 월 사용 상한 예시를 제공합니다.</p>
+
+        <table class="table" aria-label="코호트별 조건">
+          <thead>
+            <tr>
+              <th>코호트</th>
+              <th>파트너 수</th>
+              <th>r</th>
+              <th>C</th>
+              <th>최저 예치/사 (MST)</th>
+              <th>월 사용 상한/사 (PT)</th>
+              <th>코호트 예치 합계 (MST)</th>
+              <th>코호트 월 상한 합계 (PT)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>A (1~10)</td><td>10</td><td>100</td><td>10</td><td>1,000</td><td>10,000</td><td>10,000</td><td>100,000</td></tr>
+            <tr><td>B (11~30)</td><td>20</td><td>100</td><td>10</td><td>1,000</td><td>10,000</td><td>20,000</td><td>200,000</td></tr>
+            <tr><td>C (31~100)</td><td>70</td><td>500</td><td>10</td><td>10,000</td><td>500,000</td><td>700,000</td><td>35,000,000</td></tr>
+            <tr><td>D (101~300)</td><td>200</td><td>500</td><td>10</td><td>20,000</td><td>1,000,000</td><td>4,000,000</td><td>200,000,000</td></tr>
+            <tr><td>E (301~1000)</td><td>700</td><td>500</td><td>10</td><td>36,100</td><td>1,805,000</td><td>25,270,000</td><td>1,263,500,000</td></tr>
+          </tbody>
+          <tfoot>
+            <tr class="t-foot">
+              <td>합계</td><td>1,000</td><td colspan="2"></td><td>—</td><td>—</td>
+              <td class="ok">30,000,000 MST</td><td>1,498,800,000 PT / 월</td>
+            </tr>
+          </tfoot>
+        </table>
+
+        <p class="small" style="margin-top:8px">
+          * 위 월 상한은 각 코호트가 ‘최저 예치’만 충족했을 때 계산된 보수적 값입니다. 파트너가 추가 예치하면 상한은 선형으로 증가합니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===== 파트너 계산기 ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">빠른 계산기</h2>
+        <p class="lead">필요한 PT 또는 예치할 MST를 입력하면 반대 값을 계산합니다.
+          기본값은 <span class="kbd">C=10</span>, <span class="kbd">r=500</span>(C/D/E) 입니다. A/B는 r=100을 사용하세요.</p>
+
+        <div class="calc" role="group" aria-label="파트너 계산기">
+          <div class="field">
+            <label for="r">발행비율 r (PT/MST)</label>
+            <input id="r" type="number" value="500" min="1" step="1">
+          </div>
+          <div class="field">
+            <label for="c">담보비율 C</label>
+            <input id="c" type="number" value="10" min="1" step="1">
+          </div>
+          <div class="field">
+            <label for="needPt">필요 PT (월 상한 기준)</label>
+            <input id="needPt" type="number" placeholder="예: 1805000">
+          </div>
+          <div class="field">
+            <label for="mstOut">필요 예치 MST</label>
+            <input id="mstOut" type="text" class="mono" readonly>
+          </div>
+          <div class="field">
+            <label for="haveMst">예치할 MST</label>
+            <input id="haveMst" type="number" placeholder="예: 36100">
+          </div>
+          <div class="field">
+            <label for="ptOut">월 사용 상한(PT)</label>
+            <input id="ptOut" type="text" class="mono" readonly>
+          </div>
+        </div>
+        <div class="cta-row">
+          <button class="btn" id="calcNeed">PT→MST 계산</button>
+          <button class="btn" id="calcCap">MST→PT 계산</button>
+          <a class="btn primary" href="./customers.html#contact">파트너십 문의</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 파트너 혜택 & GT 역할 ===== -->
+    <section class="section">
+      <div class="container grid cols-2">
+        <article class="card">
+          <h3>협력사 혜택</h3>
+          <ul>
+            <li>수수료 수익 <strong>최대 20%</strong> 쉐어(월 정산)</li>
+            <li>예측 가능한 비용: PT 목표가 밴드 운영(필요 시 r 분기 조정)</li>
+            <li>전용 처리량 &amp; SLA <strong>99.9%+</strong></li>
+            <li>화이트라벨 익스플로러·지갑, 커스텀 도메인</li>
+            <li>KYC/AML·데이터 격리 옵션, 감사로그</li>
+            <li>거래량 달성 시 리베이트 또는 r 보너스</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h3>GT(권한 토큰) 역할</h3>
+          <ul>
+            <li>밸리데이터 추가/삭제 · 키 교체</li>
+            <li>브릿지/수수료/오라클 등 중요 파라미터 변경</li>
+            <li>응급 정지/재개(멀티시그) 및 업그레이드 승인</li>
+            <li>총 2,000개(우리 1,000 · 협력사 1,000), 가스/결제 용도 아님</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== 복붙용 안내문 ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">협력사 안내문</h2>
+        <div class="card">
+          <p>
+          “귀사의 전용 PoA 체인을 <strong>최대 1시간</strong> 내 개설합니다.<br>
+          체인 권한 토큰은 <strong>2,000개</strong>(당사 1,000 · 귀사 1,000)로 운영되며, 중요 변경은 멀티시그 승인이 필요합니다.<br>
+          체인 사용 토큰(PT)은 <strong>MST 담보</strong>로만 발행되며 <strong>글로벌 담보비율 C=10</strong>을 적용합니다.<br>
+          <span class='kbd'>PT = 예치 MST × r / C</span> 공식에 따르며 월 사용 상한도 동일합니다.<br>
+          코호트에 따라 r은 A/B=100, C/D/E=500을 적용합니다. 더 사용하려면 MST를 추가 예치하면 즉시 상한이 늘어납니다.<br>
+          브릿지·한도·프리미엄 기능 비용은 <strong>MST로만 결제</strong>되며, 사용된 PT는 자동 소각됩니다.<br>
+          <strong>다운사이드 감액 금지</strong> 정책에 따라 정책 변경으로 필요 담보가 낮아져도 기존 예치는 유지됩니다.”
+          </p>
+        </div>
+        <p class="small">본 안내는 정보 제공 목적이며 투자/법률/회계 자문이 아닙니다. 출시 전 현지 규제 검토 및 보안 감사를 권장합니다.</p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container foot" style="display:flex;justify-content:space-between;align-items:center;gap:16px">
+      <div>© Mustree Network</div>
+      <nav>
+        <a href="./resources.html">문서</a>
+        <a href="./resources.html#security">보안 정책</a>
+        <a href="./customers.html#contact">문의</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // 간단 계산기
+    function fmt(n){ return Number(n).toLocaleString('ko-KR') }
+    const $ = sel => document.querySelector(sel);
+    const r = $('#r'), c = $('#c'), needPt = $('#needPt'), mstOut = $('#mstOut'),
+          haveMst = $('#haveMst'), ptOut = $('#ptOut');
+
+    $('#calcNeed').addEventListener('click', () => {
+      const R = Number(r.value||0), C = Number(c.value||0), PT = Number(needPt.value||0);
+      if(!R || !C || !PT){ mstOut.value = '입력값 확인'; return; }
+      const mst = (PT * C) / R;
+      mstOut.value = fmt(mst);
+    });
+
+    $('#calcCap').addEventListener('click', () => {
+      const R = Number(r.value||0), C = Number(c.value||0), MST = Number(haveMst.value||0);
+      if(!R || !C || !MST){ ptOut.value = '입력값 확인'; return; }
+      const cap = (MST * R) / C;
+      ptOut.value = fmt(cap);
+    });
+  </script>
+</body>
+</html>
