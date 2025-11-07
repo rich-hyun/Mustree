@@ -11,7 +11,7 @@
 <body class="home">
   <!-- ✅ 헤더 래퍼 정상화 -->
   <header class="app-header">
-    <div class="container app-header-inner">
+    <div class="app-header-inner">
       <!-- ↓↓↓ 이 블록은 요청대로 절대 수정하지 않음 ↓↓↓ -->
       <div class="hdr-left">
         <h1>머스트리 네트워크</h1>
@@ -19,10 +19,11 @@
           <a href="./index.html">홈</a>
           <a href="./network.html">네트워크 생성 서비스</a>
           <a href="./api.html">API 제공 서비스</a>
-          <a href="./api-guide.html" class="active">API 사용 설명</a>
-          <a href="./bridge.html">(준비중)</a>
-          <a href="./sbt.html">(준비중)</a>
-          <a href="./rwa.html">(준비중)</a>
+          <a href="./api-guide.html" class="active">API 사용 설명 서비스</a>
+          <a href="./security.html">보안 정책</a>          
+          <a href="./bridge.html">브릿지 (준비중)</a>
+          <a href="./sbt.html">SBT (준비중)</a>
+          <a href="./rwa.html">RWA (준비중)</a>
         </nav>
       </div>
     </div>
@@ -350,6 +351,84 @@ print(r.json())</code></pre>
     </section>
   </main>
 
+  <footer class="site-footer">
+    <div class="container foot" style="display:flex;justify-content:space-between;align-items:center;gap:16px">
+      <div>© Mustree Network</div>
+      <nav>
+        <a href="./resources.html">문서</a>
+        <a href="./resources.html#security">보안 정책</a>
+        <a href="./customers.html#contact">문의</a>
+      </nav>
+    </div>
+  </footer>
+
+      <!-- [NEW] 초보자용 문장형 요약 섹션 -->
+    <section class="section" style="border-top:1px solid #1a1a1a;margin-top:40px;">
+      <div class="container">
+        <h2 class="section-title">[NEW] 초보자를 위한 API 설명 요약</h2>
+        <p class="lead">
+          이 문서는 MST-Contract API를 처음 사용하는 분들이 이해하기 쉽게,  
+          전체 동작 흐름과 핵심 개념을 문장형으로 정리한 섹션입니다.
+        </p>
+
+        <article class="card">
+          <h3>1. MST-Contract API란?</h3>
+          <p>
+            블록체인 상의 스마트 컨트랙트를 <strong>HTTP 형태의 API</strong>로 쉽게 호출할 수 있도록 만든 서비스입니다.  
+            지갑을 직접 연결하지 않아도 NFT, SBT, RWA 발행·관리 기능을 사용할 수 있습니다.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>2. 작동 방식</h3>
+          <p>
+            API 서버는 사용자의 요청을 받아 내부적으로 <strong>Vault</strong>를 이용해 데이터를 암호화하고  
+            <strong>HSM(하드웨어 보안 모듈)</strong>에서 서명 작업을 수행합니다.  
+            결과는 <strong>Webhook</strong>으로 전달되며, 실패 시 자동 재시도합니다.
+          </p>
+          <ul class="small">
+            <li>Vault → AES-256-GCM 암호화로 민감 데이터 보호</li>
+            <li>HSM → 키 외부 반출 없이 안전한 서명</li>
+            <li>Webhook → 멱등키 기반 중복 방지 + 재전송</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <h3>3. 사용 절차 (간단 요약)</h3>
+          <ol class="small">
+            <li>① API 키를 발급받습니다. (<code>x-api-key</code>)</li>
+            <li>② Base URL을 확인합니다. 예: <code>https://api.mst/v1</code></li>
+            <li>③ 요청을 JSON 형식으로 구성하여 전송합니다.</li>
+            <li>④ 결과의 <code>transactionHash</code>를 확인하면 트랜잭션이 블록체인에 반영됩니다.</li>
+            <li>⑤ 대시보드에서 처리 상태와 로그를 실시간으로 모니터링합니다.</li>
+          </ol>
+        </article>
+
+        <article class="card">
+          <h3>4. 예시 문장으로 이해하기</h3>
+          <p class="small">
+            “NFT를 발행한다” = <code>POST /v1/nfts/mint</code> 요청을 보내면,  
+            서버가 대신 블록체인에 민팅 트랜잭션을 기록하고 결과를 알려줍니다.<br><br>
+            “암호화를 적용한다” = Vault가 AES-256-GCM 알고리즘으로 데이터를 암호화해  
+            저장하며, 서버는 평문 데이터를 보지 않습니다.<br><br>
+            “보안을 유지한다” = TLS 통신으로 요청을 암호화하고, HSM이 키를 안전하게 보관하며,  
+            API 키와 역할 기반 권한으로 접근을 통제합니다.
+          </p>
+        </article>
+
+        <article class="card">
+          <h3>5. 추가 참고</h3>
+          <p>더 자세한 구조와 보안 설계는 아래 문서를 참고하세요.</p>
+          <ul class="small">
+            <li><a href="./security.html">Vault & HSM 보안 아키텍처</a></li>
+            <li><a href="./api.html">전체 API 목록</a></li>
+            <li><a href="./dashboard.html">대시보드 실시간 모니터링</a></li>
+          </ul>
+        </article>
+      </div>
+    </section>
+    <!-- [NEW] 추가 섹션 끝 -->
+  </main>
   <footer class="site-footer">
     <div class="container foot" style="display:flex;justify-content:space-between;align-items:center;gap:16px">
       <div>© Mustree Network</div>

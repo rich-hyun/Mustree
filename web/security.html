@@ -1,0 +1,213 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>보안 및 암호화 설계 · 머스트리 네트워크</title>
+  <meta name="description" content="Vault · AES · HSM 기반의 보안 구조 및 암호화 정책을 소개합니다.">
+  <link rel="stylesheet" href="./style.css" />
+</head>
+
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="hdr-left">
+        <h1>머스트리 네트워크</h1>
+        <nav class="menu">
+          <a href="./index.html">홈</a>
+          <a href="./network.html">네트워크 생성 서비스</a>
+          <a href="./api.html">API 제공 서비스</a>
+          <a href="./api-guide.html">API 사용 설명 서비스</a>
+          <a href="./security.html" class="active">보안 정책</a>
+          <a href="./bridge.html">브릿지 (준비중)</a>
+          <a href="./sbt.html">SBT (준비중)</a>
+          <a href="./rwa.html">RWA (준비중)</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- ===== Hero ===== -->
+    <section class="hero hero-visual">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container hero-inner">
+        <p class="eyebrow">Security & Encryption Architecture</p>
+        <h1>Vault · AES · HSM 기반<br>엔터프라이즈 보안 구조</h1>
+        <p class="sub">
+          MST-Contract는 클라우드와 온프레미스 모두에서 작동 가능한<br>
+          <strong>1차 AES 암호화 + Vault 키 관리 + HSM 내부 서명</strong> 체계를 제공합니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- ===== 핵심 보안 구조 ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">보안 아키텍처 개요</h2>
+        <p class="lead">데이터 암호화, 키 관리, 서명, 결과 전달 등 각 단계별로 보안이 내장되어 있습니다.</p>
+        <div class="diagram" style="text-align:center;margin:32px 0;">
+          <pre class="kbd" style="display:inline-block;text-align:left;">
+Client 
+  ↓  (TLS 1.3)
+API Server 
+  ↓  (Vault Transit API)
+Vault (AES-256-GCM) 
+  ↓  (암호문 저장)
+DB / IPFS
+  ↓  
+HSM Signer (서명만 수행)
+  ↓  
+Blockchain + Webhook
+          </pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 보안 구간별 요약 ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">보안 & 암호화 설계</h2>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>구간</th>
+              <th>목적</th>
+              <th>방식(1차)</th>
+              <th>구현 예시</th>
+              <th>비고</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>클라이언트 ↔ API</td>
+              <td>전송 보호</td>
+              <td>TLS 1.3 + 요청 서명</td>
+              <td>Nginx/Cloudflare + HMAC/JWT</td>
+              <td>멱등키 (Idempotency-Key) 중복 방지</td>
+            </tr>
+            <tr>
+              <td>API ↔ Vault</td>
+              <td>암호화 서비스 호출</td>
+              <td>Vault Transit API</td>
+              <td>POST /v1/transit/encrypt</td>
+              <td>서버는 키 평문 비보관</td>
+            </tr>
+            <tr>
+              <td>API ↔ DB/IPFS</td>
+              <td>민감데이터 보호</td>
+              <td>AES-256-GCM (암호문 저장)</td>
+              <td>Vault가 암복호화 수행</td>
+              <td>IPFS는 암호문만 저장</td>
+            </tr>
+            <tr>
+              <td>API ↔ HSM</td>
+              <td>서명 키 보호</td>
+              <td>HSM 내부 서명</td>
+              <td>PKCS#11 / CloudHSM</td>
+              <td>키 외부 반출 금지</td>
+            </tr>
+            <tr>
+              <td>Webhook</td>
+              <td>결과 위조 방지</td>
+              <td>HMAC-SHA256 서명</td>
+              <td>X-Signature 헤더</td>
+              <td>재전송 백오프 + 멱등성</td>
+            </tr>
+            <tr>
+              <td>로그/백업</td>
+              <td>유출 대응</td>
+              <td>해시체인 + AES</td>
+              <td>WORM/S3-SSE</td>
+              <td>감사 추적 무결성</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== 암호화 계층 설명 ===== -->
+    <section class="section">
+      <div class="container grid cols-3">
+        <article class="card">
+          <h3>Vault (키 금고)</h3>
+          <p>암호화 키 생성·보관·회전을 자동화하는 중앙 보안 시스템입니다. 모든 데이터는 Vault API를 통해 암·복호화 되며 서버에는 키가 남지 않습니다.</p>
+        </article>
+        <article class="card">
+          <h3>AES-256-GCM</h3>
+          <p>가장 안전한 대칭키 암호화 방식입니다. Vault 내부 및 애플리케이션 단에서 데이터를 암호화하며, 무결성 검증 태그로 위변조를 차단합니다.</p>
+        </article>
+        <article class="card">
+          <h3>HSM (하드웨어 보안 모듈)</h3>
+          <p>서명 및 키 운영을 물리적으로 분리합니다. 블록체인 서명, 거래 승인 등은 항상 HSM 내부에서 수행되어 키 유출 위험이 없습니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== 운영 정책 및 로드맵 ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">도입 로드맵</h2>
+        <table class="data-table small">
+          <thead>
+            <tr><th>단계</th><th>적용 대상</th><th>핵심 목표</th><th>구현 포인트</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>1단계</td><td>API → 서버</td><td>전송 계층 보호 + 요청 서명</td><td>TLS 1.3, HMAC/JWT, Idempotency-Key</td></tr>
+            <tr><td>2단계</td><td>서버 ↔ DB/IPFS</td><td>AES 암호문 저장/조회</td><td>Vault Transit, AES-GCM, 키 비노출</td></tr>
+            <tr><td>3단계</td><td>HSM 연동</td><td>개인키 외부 반출 금지</td><td>Signer 분리, PKCS#11, 승인정책</td></tr>
+            <tr><td>4단계</td><td>Webhook/로그</td><td>무결성·전달 보장</td><td>서명 검증, 백오프, 해시체인</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== 결과 알림 설명 ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">결과 알림 (Webhook)</h2>
+        <div class="grid cols-2">
+          <article class="card">
+            <h3>전달 흐름</h3>
+            <ul class="small">
+              <li>멱등키 기반 중복 방지</li>
+              <li>지수 백오프 자동 재시도</li>
+              <li>서명 검증(HMAC) 무결성 보장</li>
+              <li>대시보드 엔드포인트 관리 지원</li>
+            </ul>
+          </article>
+          <article class="card">
+            <h3>서명 헤더 예시</h3>
+            <pre class="kbd small">X-Signature: HMAC-SHA256=58af0c3e…</pre>
+            <p class="small">수신 서버는 동일 Secret으로 해시를 계산하여 데이터 위변조를 검증합니다.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 감사 및 권한 관리 ===== -->
+    <section class="section">
+      <div class="container grid cols-2">
+        <article class="card">
+          <h3>감사 로그 및 추적</h3>
+          <p>모든 서명·요청·결과는 해시체인 로그로 기록되어 변경 불가합니다. 관리자는 대시보드에서 로그 조회 및 내보내기가 가능합니다.</p>
+        </article>
+        <article class="card">
+          <h3>역할 기반 권한 관리 (RBAC)</h3>
+          <p>운영자, 개발자, 검증자 등 역할별 권한이 분리되어 민감 API 및 Vault 접근을 통제합니다.</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== 마무리 안내 ===== -->
+    <section class="section">
+      <div class="container">
+        <div class="card">
+          <h3>온프레미스 및 데이터 주권 옵션</h3>
+          <p>기업 보안정책에 따라 Vault 및 HSM을 내부망에 설치할 수 있습니다. 클라우드 서비스와 동일한 API를 사용하며 데이터 주권을 유지합니다.</p>
+        </div>
+        <p class="small" style="margin-top:8px;">© Mustree Network — Enterprise Security Framework for MST Ecosystem</p>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

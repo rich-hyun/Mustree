@@ -28,6 +28,11 @@ body{
 
 /* ============ Layout ============ */
 .container{max-width:1080px;margin:0 auto;padding:0 20px}
+.app-header .container {
+  max-width: none;
+  width: 100%;
+  padding: 0 32px; /* 좌우 여백은 적당히 */
+}
 .section{padding:56px 0;border-top:1px solid var(--line)}
 .section-title{margin:0 0 14px;font-size:28px;letter-spacing:.2px}
 .small{font-size:13px;color:#b6bdca}
