@@ -261,6 +261,308 @@ GET /events/manager-set?manager=
         </div>
       </div>
     </section>
+    
+    <!-- ===== 개요 ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">개요</h2>
+        <div class="notice info">
+          <strong>[핵심 개념]</strong><br/>
+          “<em>스마트 컨트랙트를 API 형식으로 제공</em>”한다는 건,
+          기술적으로는 <strong>블록체인 상의 트랜잭션 함수(ABI)</strong>들을
+          <strong>HTTP 기반 REST API 또는 SDK</strong>로 감싸서
+          <u>파트너사가 직접 블록체인 RPC를 다루지 않아도</u> 사용할 수 있게 하는 구조입니다.
+        </div>
+        <div class="grid cols-3" style="margin-top:14px">
+          <article class="card">
+            <h3>무지갑 통합</h3>
+            <p class="small">고객사는 지갑/서명/가스 관리를 직접 하지 않고, <code>x-api-key</code>만으로 호출합니다.</p>
+          </article>
+          <article class="card">
+            <h3>권한·감사</h3>
+            <p class="small">민감 정보(docHash)는 이벤트로 노출하지 않으며, 권한자만 조회. 모든 변경은 이벤트로 감사 추적.</p>
+          </article>
+          <article class="card">
+            <h3>표준화</h3>
+            <p class="small">REST 규칙/오류 규칙/버전 관리로 엔터프라이즈 표준을 준수합니다.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Quick Start ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">빠른 시작 (Quick Start)</h2>
+        <div class="grid cols-2">
+          <article class="card">
+            <h3>1) 필수 정보</h3>
+            <ul class="small">
+              <li>Base URL: <code id="baseUrlHint">http://localhost:8080/api/v1</code></li>
+              <li>인증: 헤더 <code>x-api-key: &lt;YOUR_API_KEY&gt;</code></li>
+              <li>컨트랙트: <code>0x0178d0837e584a2a78b086695dd513b9ebc94a4e</code></li>
+              <li>네트워크: 사내 EVM (RPC/CHAIN_ID는 서버 <code>.env</code>에 설정)</li>
+            </ul>
+            <div class="note">운영/샌드박스의 Base URL은 다를 수 있습니다. 내부 포털에서 확인하세요.</div>
+          </article>
+
+          <article class="card">
+            <h3>2) 첫 호출 (health)</h3>
+            <div class="code-tabs">
+              <div class="tab-buttons">
+                <button class="tab-btn active" data-tab="curl1">cURL</button>
+                <button class="tab-btn" data-tab="js1">JavaScript</button>
+                <button class="tab-btn" data-tab="py1">Python</button>
+              </div>
+              <div class="tab-panel active" id="curl1">
+<pre><code class="mono small">curl -H "x-api-key: $API_KEY" \
+  "http://localhost:8080/api/v1/health"</code></pre>
+              </div>
+              <div class="tab-panel" id="js1">
+<pre><code class="mono small">fetch("http://localhost:8080/api/v1/health", {
+  headers: { "x-api-key": API_KEY }
+}).then(r =&gt; r.json()).then(console.log)</code></pre>
+              </div>
+              <div class="tab-panel" id="py1">
+<pre><code class="mono small">import requests
+r = requests.get("http://localhost:8080/api/v1/health",
+                 headers={"x-api-key": API_KEY})
+print(r.json())</code></pre>
+              </div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== 핵심 플로우(Manager → Asset → Viewer) ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">KB 과제 핵심 플로우</h2>
+        <ol class="small">
+          <li><strong>매니저 설정</strong> – <code>setManager</code> 로 운영 계정 권한 위임</li>
+          <li><strong>담보 생성</strong> – <code>createAsset</code> 으로 Title/Viewer 동시 발행</li>
+          <li><strong>메타데이터 확인</strong> – <code>tokenURI</code> 로 Viewer/Title 여부, Ownership % 확인</li>
+          <li><strong>열람</strong> – <code>recordAppraiserView</code> 또는 <code>viewDocHash</code> (권한 필요)</li>
+          <li><strong>열람권 회수</strong> – <code>burnViewer</code> 로 Viewer 소각</li>
+        </ol>
+
+        <!-- setManager -->
+        <article class="card" style="margin-top:12px">
+          <h3>1) 매니저 설정 — <code>setManager</code></h3>
+          <p class="small">컨트랙트 소유자만 호출 가능. 매니저는 자산 생성/관리 권한을 가집니다.</p>
+          <div class="code-tabs">
+            <div class="tab-buttons">
+              <button class="tab-btn active" data-tab="curl-mgr">cURL</button>
+              <button class="tab-btn" data-tab="js-mgr">JavaScript</button>
+              <button class="tab-btn" data-tab="py-mgr">Python</button>
+            </div>
+            <div class="tab-panel active" id="curl-mgr">
+<pre><code class="mono small">curl -X POST "$BASE/contract/set-manager" \
+  -H "x-api-key: $API_KEY" -H "content-type: application/json" \
+  -d '{"manager":"0xManager..."}'</code></pre>
+            </div>
+            <div class="tab-panel" id="js-mgr">
+<pre><code class="mono small">await fetch(`${BASE}/contract/set-manager`, {
+  method: 'POST',
+  headers: { 'x-api-key': API_KEY, 'content-type':'application/json' },
+  body: JSON.stringify({ manager: "0xManager..." })
+}).then(r =&gt; r.json())</code></pre>
+            </div>
+            <div class="tab-panel" id="py-mgr">
+<pre><code class="mono small">import requests, json
+r = requests.post(f"{BASE}/contract/set-manager",
+  headers={'x-api-key': API_KEY, 'content-type':'application/json'},
+  data=json.dumps({'manager':'0xManager...'}))
+print(r.json())</code></pre>
+            </div>
+          </div>
+          <table class="table small" style="margin-top:10px">
+            <thead><tr><th>파라미터</th><th>타입</th><th>필수</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td>manager</td><td>address</td><td>✅</td><td>새 매니저 지갑 주소</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <!-- createAsset -->
+        <article class="card" style="margin-top:12px">
+          <h3>2) 담보 생성 — <code>createAsset</code></h3>
+          <p class="small">Title(은행 소유)·Viewer(감정사 소유) 토큰을 동시에 민팅합니다.</p>
+          <div class="code-tabs">
+            <div class="tab-buttons">
+              <button class="tab-btn active" data-tab="curl-asset">cURL</button>
+              <button class="tab-btn" data-tab="js-asset">JavaScript</button>
+              <button class="tab-btn" data-tab="py-asset">Python</button>
+            </div>
+            <div class="tab-panel active" id="curl-asset">
+<pre><code class="mono small">curl -X POST "$BASE/assets" \
+  -H "x-api-key: $API_KEY" -H "content-type: application/json" \
+  -d '{
+    "assetId":"1","viewerId":"1001",
+    "bank":"0xBank...","appraiser":"0xAppraiser...",
+    "borrower":"0xBorrower...","docHash":"ipfs://bafy.../report.pdf"
+  }'</code></pre>
+            </div>
+            <div class="tab-panel" id="js-asset">
+<pre><code class="mono small">await fetch(`${BASE}/assets`, {
+  method:'POST',
+  headers:{ 'x-api-key': API_KEY, 'content-type':'application/json' },
+  body: JSON.stringify({
+    assetId:"1", viewerId:"1001",
+    bank:"0xBank...", appraiser:"0xAppraiser...",
+    borrower:"0xBorrower...", docHash:"ipfs://bafy.../report.pdf"
+  })
+}).then(r =&gt; r.json())</code></pre>
+            </div>
+            <div class="tab-panel" id="py-asset">
+<pre><code class="mono small">payload = {
+  "assetId":"1","viewerId":"1001",
+  "bank":"0xBank...","appraiser":"0xAppraiser...",
+  "borrower":"0xBorrower...","docHash":"ipfs://bafy.../report.pdf"
+}
+r = requests.post(f"{BASE}/assets",
+  headers={'x-api-key':API_KEY,'content-type':'application/json'},
+  data=json.dumps(payload))
+print(r.json())</code></pre>
+            </div>
+          </div>
+          <table class="table small" style="margin-top:10px">
+            <thead><tr><th>파라미터</th><th>타입</th><th>필수</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td>assetId</td><td>uint256</td><td>✅</td><td>자산 토큰 ID(Title)</td></tr>
+              <tr><td>viewerId</td><td>uint256</td><td>✅</td><td>열람권 토큰 ID(Viewer)</td></tr>
+              <tr><td>bank</td><td>address</td><td>✅</td><td>은행(Title 수취인)</td></tr>
+              <tr><td>appraiser</td><td>address</td><td>✅</td><td>감정사(Viewer 수취인)</td></tr>
+              <tr><td>borrower</td><td>address</td><td>✅</td><td>차주</td></tr>
+              <tr><td>docHash</td><td>string</td><td>✅</td><td>문서 해시(IPFS 등)</td></tr>
+            </tbody>
+          </table>
+        </article>
+
+        <!-- tokenURI -->
+        <article class="card" style="margin-top:12px">
+          <h3>3) 메타데이터 — <code>tokenURI</code></h3>
+          <div class="code-tabs">
+            <div class="tab-buttons">
+              <button class="tab-btn active" data-tab="curl-uri">cURL</button>
+              <button class="tab-btn" data-tab="js-uri">JavaScript</button>
+              <button class="tab-btn" data-tab="py-uri">Python</button>
+            </div>
+            <div class="tab-panel active" id="curl-uri">
+<pre><code class="mono small">curl -H "x-api-key: $API_KEY" "$BASE/tokens/1001/uri"</code></pre>
+            </div>
+            <div class="tab-panel" id="js-uri">
+<pre><code class="mono small">const r = await fetch(`${BASE}/tokens/1001/uri`,
+  { headers:{'x-api-key':API_KEY} }).then(r=&gt;r.json())
+const dataUri = r.tokenURI; /* data:application/json;base64,... */
+</code></pre>
+            </div>
+            <div class="tab-panel" id="py-uri">
+<pre><code class="mono small">r = requests.get(f"{BASE}/tokens/1001/uri",
+  headers={'x-api-key':API_KEY})
+print(r.json())</code></pre>
+            </div>
+          </div>
+          <div class="tip small">반환값은 <code>data:application/json;base64,...</code> 형식입니다.
+            Base64 디코드하여 Viewer/Title 여부, Ownership %, Asset/Token ID를 확인하세요.</div>
+        </article>
+
+        <!-- recordAppraiserView & viewDocHash -->
+        <article class="card" style="margin-top:12px">
+          <h3>4) 열람/해시 — <code>recordAppraiserView</code>, <code>viewDocHash</code></h3>
+          <div class="grid cols-2">
+            <div>
+              <h4 class="small">열람 기록 (쓰기)</h4>
+<pre><code class="mono small">curl -X POST -H "x-api-key: $API_KEY" \
+  "$BASE/assets/1/appraiser-view"</code></pre>
+            </div>
+            <div>
+              <h4 class="small">문서 해시 (읽기, 권한 필요)</h4>
+<pre><code class="mono small">curl -H "x-api-key: $API_KEY" \
+  "$BASE/assets/1/doc-hash"</code></pre>
+            </div>
+          </div>
+          <div class="note warn">권한: Title 보유 은행 또는 Viewer 보유자만 성공합니다.</div>
+        </article>
+
+        <!-- burnViewer -->
+        <article class="card" style="margin-top:12px">
+          <h3>5) 열람권 소각 — <code>burnViewer</code></h3>
+<pre><code class="mono small">curl -X POST -H "x-api-key: $API_KEY" \
+  "$BASE/assets/1/viewer/burn"</code></pre>
+          <div class="note warn">권한: 매니저 또는 해당 자산의 Title 보유자</div>
+        </article>
+      </div>
+    </section>
+
+    <!-- ===== 브라우저 Try it ===== -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">브라우저에서 바로 호출 (Try it)</h2>
+        <div class="card">
+          <div class="form" style="grid-template-columns: 5fr 3fr auto;">
+            <input id="BASE" type="text" placeholder="Base URL (예: http://localhost:8080/api/v1)" />
+            <input id="APIKEY" type="text" placeholder="x-api-key" />
+            <button class="btn" onclick="ping()">GET /health</button>
+          </div>
+          <div class="grid cols-2" style="margin-top:12px">
+            <div class="field">
+              <label>setManager</label>
+              <input id="inManager" type="text" placeholder="0xManager..." />
+              <button class="btn" onclick="callSetManager()">호출</button>
+            </div>
+            <div class="field">
+              <label>createAsset</label>
+              <textarea id="inCreateAsset" placeholder='{"assetId":"1","viewerId":"1001","bank":"0x...","appraiser":"0x...","borrower":"0x...","docHash":"ipfs://..."}'></textarea>
+              <button class="btn" onclick="callCreateAsset()">호출</button>
+            </div>
+            <div class="field">
+              <label>tokenURI</label>
+              <input id="inTokenId" type="number" placeholder="tokenId (예: 1001)" />
+              <button class="btn" onclick="callTokenURI()">호출</button>
+            </div>
+            <div class="field">
+              <label>burnViewer</label>
+              <input id="inAssetId" type="number" placeholder="assetId (예: 1)" />
+              <button class="btn" onclick="callBurnViewer()">호출</button>
+            </div>
+          </div>
+          <pre id="out" class="mono small" style="margin-top:12px;min-height:160px">결과가 여기에 표시됩니다.</pre>
+        </div>
+      </div>
+    </section>
+    
+    <!-- ===== 오류/보안 ===== -->
+    <section class="section">
+      <div class="container grid cols-2">
+        <article class="card">
+          <h3>오류 및 응답 규칙</h3>
+          <table class="table small">
+            <thead><tr><th>HTTP</th><th>예시</th><th>설명</th></tr></thead>
+            <tbody>
+              <tr><td>200/201</td><td><code>{"transactionHash":"0x..."}</code></td><td>성공</td></tr>
+              <tr><td>400</td><td><code>{"error":"missing field: assetId"}</code></td><td>요청 오류</td></tr>
+              <tr><td>401</td><td><code>{"error":"invalid api key"}</code></td><td>인증 실패</td></tr>
+              <tr><td>403</td><td><code>{"error":"no view right"}</code></td><td>권한 없음</td></tr>
+              <tr><td>409</td><td><code>{"error":"title exists"}</code></td><td>중복/상태 충돌</td></tr>
+              <tr><td>500</td><td><code>{"error":"internal error"}</code></td><td>서버 오류</td></tr>
+            </tbody>
+          </table>
+          <div class="tip small" style="margin-top:8px">트랜잭션성 API는 응답 내 <code>transactionHash</code>가 포함됩니다.</div>
+        </article>
+        <article class="card">
+          <h3>보안 모범 사례</h3>
+          <ul class="small">
+            <li><strong>IP Allowlist</strong>: API 키는 허용 IP만 사용</li>
+            <li><strong>최소 권한</strong>: 운영/개발/테스트 키 분리</li>
+            <li><strong>키 로테이션</strong>: 분기별 교체, 유출 시 즉시 폐기</li>
+            <li><strong>민감 데이터</strong>: docHash는 이벤트 미노출, 권한자만 조회</li>
+          </ul>
+          <div class="note info">운영체제/네트워크 로그에 요청 본문(특히 주소·해시)을 과다 저장하지 마세요.</div>
+        </article>
+      </div>
+    </section>
 
     <!-- ===== 복붙용 안내문 ===== -->
     <section class="section">
