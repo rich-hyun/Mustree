@@ -18,9 +18,10 @@
         <nav class="menu">
           <a href="./index.html">홈</a>
           <a href="./network.html">네트워크 생성 서비스</a>
-          <a href="./api.html">API 제공 서비스</a>
-          <a href="./api-guide.html" class="active">API 사용 설명 서비스</a>
-          <a href="./security.html">보안 정책</a>          
+          <a href="./api.html">API 리스트</a>
+          <a href="./api-guide.html" class="active">API 가이드</a>
+          <a href="./security.html">보안 정책</a>
+          <a href="./dashboard.html">대시보드</a>
           <a href="./bridge.html">브릿지 (준비중)</a>
           <a href="./sbt.html">SBT (준비중)</a>
           <a href="./rwa.html">RWA (준비중)</a>
@@ -30,15 +31,16 @@
   </header>
 
   <main>
+
     <!-- ===== Hero ===== -->
     <section class="hero hero-visual">
       <div class="hero-bg" aria-hidden="true"></div>
       <div class="container hero-inner">
         <p class="eyebrow">API User Guide</p>
-        <h1>스마트 컨트랙트 기반<br>RWA API 사용 설명법</h1>
+        <h1>스마트 컨트랙트 기반 API 사용 설명법</h1>
         <p class="sub">
-          <code>자체 스마트 컨트랙트</code> 를 기반으로의 트랜잭션/조회 함수를
-          HTTP API로 감싸 지갑 없이 호출할 수 있습니다.
+          복잡한 스마트 컨트랙트 호출을 <strong>일반 HTTP API 방식</strong>으로  
+          누구나 쉽게 사용할 수 있도록 구성된 가이드입니다.
         </p>
         <div class="badges">
           <span class="badge">OpenAPI 3.1</span>
@@ -47,162 +49,81 @@
         </div>
       </div>
     </section>
-  </main>
 
-  <footer class="site-footer">
-    <div class="container foot" style="display:flex;justify-content:space-between;align-items:center;gap:16px">
-      <div>© Mustree Network</div>
-      <nav>
-        <a href="./resources.html">문서</a>
-        <a href="./resources.html#security">보안 정책</a>
-        <a href="./customers.html#contact">문의</a>
-      </nav>
-    </div>
-  </footer>
-
-      <!-- [NEW] 초보자용 문장형 요약 섹션 -->
+    <!-- 초보자용 문장형 요약 섹션 -->
     <section class="section" style="border-top:1px solid #1a1a1a;margin-top:40px;">
       <div class="container">
-        <h2 class="section-title">[NEW] 초보자를 위한 API 설명 요약</h2>
+        <h2 class="section-title">초보자를 위한 API 설명 요약</h2>
         <p class="lead">
-          이 문서는 MST-Contract API를 처음 사용하는 분들이 이해하기 쉽게,  
-          전체 동작 흐름과 핵심 개념을 문장형으로 정리한 섹션입니다.
+          이 섹션은 MST-Contract API를 처음 사용하는 분들을 위해  
+          <strong>스마트 컨트랙트를 어떻게 사용하면 좋은지</strong>를  
+          자연스러운 문장으로 쉽게 정리한 안내입니다.
         </p>
 
+        <!-- 1 -->
         <article class="card">
           <h3>1. MST-Contract API란?</h3>
           <p>
-            블록체인 상의 스마트 컨트랙트를 <strong>HTTP 형태의 API</strong>로 쉽게 호출할 수 있도록 만든 서비스입니다.  
-            지갑을 직접 연결하지 않아도 NFT, SBT, RWA 발행·관리 기능을 사용할 수 있습니다.
+            블록체인 상의 스마트 컨트랙트를 직접 다루지 않아도,  
+            <strong>일반적인 웹 API 호출만으로</strong> NFT 발행, SBT 발급,  
+            RWA 등록과 같은 기능을 사용할 수 있게 만든 서비스입니다.
+            지갑 연결, 가스 설정, 서명 처리 등 복잡한 과정은 모두 서버가 대신 처리합니다.
           </p>
         </article>
 
+        <!-- 2 -->
         <article class="card">
-          <h3>2. 작동 방식</h3>
+          <h3>2. 어떻게 동작하나요?</h3>
           <p>
-            API 서버는 사용자의 요청을 받아 내부적으로 <strong>Vault</strong>를 이용해 데이터를 암호화하고  
-            <strong>HSM(하드웨어 보안 모듈)</strong>에서 서명 작업을 수행합니다.  
-            결과는 <strong>Webhook</strong>으로 전달되며, 실패 시 자동 재시도합니다.
+            여러분은 단순히 <strong>JSON 형태의 API 요청</strong>만 보냅니다.  
+            그러면 서버가 해당 요청에 맞는 스마트 컨트랙트 함수를 자동으로 실행합니다.
+            트랜잭션이 블록체인에 기록되면 그 결과를 API 응답으로 전달합니다.
           </p>
-          <ul class="small">
-            <li>Vault → AES-256-GCM 암호화로 민감 데이터 보호</li>
-            <li>HSM → 키 외부 반출 없이 안전한 서명</li>
-            <li>Webhook → 멱등키 기반 중복 방지 + 재전송</li>
-          </ul>
+          <p class="small">
+            즉, “블록체인 사용 = 서버에 API 요청 → 서버가 대신 처리 → 블록체인 기록”  
+            이 구조라고 이해하면 됩니다.
+          </p>
         </article>
 
+        <!-- 3 -->
         <article class="card">
           <h3>3. 사용 절차 (간단 요약)</h3>
           <ol class="small">
             <li>① API 키를 발급받습니다. (<code>x-api-key</code>)</li>
-            <li>② Base URL을 확인합니다. 예: <code>https://api.mst/v1</code></li>
-            <li>③ 요청을 JSON 형식으로 구성하여 전송합니다.</li>
-            <li>④ 결과의 <code>transactionHash</code>를 확인하면 트랜잭션이 블록체인에 반영됩니다.</li>
-            <li>⑤ 대시보드에서 처리 상태와 로그를 실시간으로 모니터링합니다.</li>
+            <li>② Base URL을 확인합니다. 예: <code>https://api.mst.network/v1</code></li>
+            <li>③ 필요한 기능(NFT/SBT/RWA 등)에 맞는 API를 호출합니다.</li>
+            <li>④ 응답으로 전달되는 <code>transactionHash</code>는 “블록체인 기록 증거”입니다.</li>
+            <li>⑤ 관리 대시보드에서 처리 상태와 로그를 확인합니다.</li>
           </ol>
         </article>
 
+        <!-- 4 -->
         <article class="card">
           <h3>4. 예시 문장으로 이해하기</h3>
           <p class="small">
-            “NFT를 발행한다” = <code>POST /v1/nfts/mint</code> 요청을 보내면,  
-            서버가 대신 블록체인에 민팅 트랜잭션을 기록하고 결과를 알려줍니다.<br><br>
-            “암호화를 적용한다” = Vault가 AES-256-GCM 알고리즘으로 데이터를 암호화해  
-            저장하며, 서버는 평문 데이터를 보지 않습니다.<br><br>
-            “보안을 유지한다” = TLS 통신으로 요청을 암호화하고, HSM이 키를 안전하게 보관하며,  
-            API 키와 역할 기반 권한으로 접근을 통제합니다.
+            “NFT를 발행한다”  
+            → <code>POST /v1/nfts/mint</code> 를 호출하면 서버가  
+            블록체인에 NFT를 생성하는 트랜잭션을 자동으로 기록합니다.
+          </p>
+          <p class="small">
+            “실물자산을 블록체인에 등록한다”  
+            → <code>/v1/rwa/mint</code> API를 호출하면  
+            해당 자산을 나타내는 RWA 토큰이 생성되고 기록됩니다.
+          </p>
+          <p class="small">
+            “권리를 부여한다”  
+            → SBT API를 사용하면 사용자에게 양도 불가한 인증/권한 토큰을 발급할 수 있습니다.
+          </p>
+          <p class="small">
+            즉, 스마트 컨트랙트를 직접 코드로 작성하거나 배포할 필요 없이  
+            <strong>기존 REST API 쓰듯이 블록체인을 활용할 수 있습니다.</strong>
           </p>
         </article>
 
-        <article class="card">
-          <h3>5. 추가 참고</h3>
-          <p>더 자세한 구조와 보안 설계는 아래 문서를 참고하세요.</p>
-          <ul class="small">
-            <li><a href="./security.html">Vault & HSM 보안 아키텍처</a></li>
-            <li><a href="./api.html">전체 API 목록</a></li>
-            <li><a href="./dashboard.html">대시보드 실시간 모니터링</a></li>
-          </ul>
-        </article>
       </div>
     </section>
-    <!-- [NEW] 추가 섹션 끝 -->
+
   </main>
-  <footer class="site-footer">
-    <div class="container foot" style="display:flex;justify-content:space-between;align-items:center;gap:16px">
-      <div>© Mustree Network</div>
-      <nav>
-        <a href="./resources.html">문서</a>
-        <a href="./resources.html#security">보안 정책</a>
-        <a href="./customers.html#contact">문의</a>
-      </nav>
-    </div>
-  </footer>
 
-  <!-- ===== [NEW] 가벼운 탭/콘솔 스크립트 ===== -->
-  <script>
-    // 코드 탭
-    document.querySelectorAll('.code-tabs').forEach(box => {
-      const btns = box.querySelectorAll('.tab-btn');
-      const panels = box.querySelectorAll('.tab-panel');
-      btns.forEach(btn => btn.addEventListener('click', () => {
-        btns.forEach(b => b.classList.remove('active'));
-        panels.forEach(p => p.classList.remove('active'));
-        btn.classList.add('active');
-        box.querySelector('#' + btn.dataset.tab).classList.add('active');
-      }));
-    });
-
-    // Try it 콘솔 유틸
-    const $ = s => document.querySelector(s);
-    const getBase = () => ($('#BASE').value || 'http://localhost:8080/api/v1').replace(/\/$/,'');
-    const hdrs = (json=true) => {
-      const h = { 'x-api-key': $('#APIKEY').value || '' };
-      if (json) h['content-type'] = 'application/json';
-      return h;
-    };
-    const print = (obj) => { $('#out').textContent = typeof obj==='string' ? obj : JSON.stringify(obj,null,2); };
-
-    async function ping(){
-      try {
-        const r = await fetch(`${getBase()}/health`, { headers: hdrs(false) });
-        print(await r.json());
-      } catch(e){ print({ error: e.message || e }); }
-    }
-
-    async function callSetManager(){
-      const body = { manager: $('#inManager').value || '0xManager...' };
-      try {
-        const r = await fetch(`${getBase()}/contract/set-manager`, { method:'POST', headers: hdrs(), body: JSON.stringify(body) });
-        print(await r.json());
-      } catch(e){ print({ error: e.message || e }); }
-    }
-
-    async function callCreateAsset(){
-      let body;
-      try { body = JSON.parse($('#inCreateAsset').value || '{}'); }
-      catch { return print({ error: 'JSON Body 형식을 확인하세요' }); }
-      try {
-        const r = await fetch(`${getBase()}/assets`, { method:'POST', headers: hdrs(), body: JSON.stringify(body) });
-        print(await r.json());
-      } catch(e){ print({ error: e.message || e }); }
-    }
-
-    async function callTokenURI(){
-      const id = $('#inTokenId').value || '1001';
-      try {
-        const r = await fetch(`${getBase()}/tokens/${id}/uri`, { headers: hdrs(false) });
-        const data = await r.json();
-        print(data);
-      } catch(e){ print({ error: e.message || e }); }
-    }
-
-    async function callBurnViewer(){
-      const id = $('#inAssetId').value || '1';
-      try {
-        const r = await fetch(`${getBase()}/assets/${id}/viewer/burn`, { method:'POST', headers: hdrs() });
-        print(await r.json());
-      } catch(e){ print({ error: e.message || e }); }
-    }
-  </script>
 </body>
 </html>

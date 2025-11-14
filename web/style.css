@@ -19,11 +19,8 @@ body{margin:0;font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,"Noto Sans
   --header-h:64px;
 }
 
-body{
-  background:
-    radial-gradient(1200px 520px at 15% -10%, rgba(138,125,255,.25), transparent 60%),
-    radial-gradient(1000px 520px at 85% -15%, rgba(0,209,255,.18), transparent 60%),
-    var(--bg);
+body {
+  background: var(--bg);
 }
 
 /* ============ Layout ============ */
@@ -33,7 +30,7 @@ body{
   width: 100%;
   padding: 0 32px; /* 좌우 여백은 적당히 */
 }
-.section{padding:56px 0;border-top:1px solid var(--line)}
+.section{padding:56px 0;}
 .section-title{margin:0 0 14px;font-size:28px;letter-spacing:.2px}
 .small{font-size:13px;color:#b6bdca}
 .kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;background:#1b1d36;border:1px solid var(--line);padding:2px 6px;border-radius:6px}
@@ -83,9 +80,10 @@ body{
 .hero .hero-bg{
   position:absolute;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(600px 300px at 20% 0%, rgba(138,125,255,.25), transparent 60%),
-    radial-gradient(600px 300px at 80% -10%, rgba(0,209,255,.18), transparent 60%),
-    linear-gradient(180deg, rgba(0,0,0,.0), rgba(0,0,0,.25));
+    radial-gradient(600px 200px at 20% 0%, rgba(138,125,255,.22), transparent 70%),
+    radial-gradient(600px 200px at 80% -10%, rgba(0,209,255,.15), transparent 70%),
+    var(--bg);
+    
 }
 .hero .container{position:relative;z-index:1}
 .hero .eyebrow{letter-spacing:.12em;color:#b7bfe0;text-transform:uppercase;font-size:12px;margin:0}
@@ -119,7 +117,6 @@ body{
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace}
 
 /* ============ Footer ============ */
-.site-footer{border-top:1px solid var(--line);background:#0b0c19;color:#cfd4e1;margin-top:40px}
 .site-footer .foot{max-width:1080px;margin:0 auto;padding:24px 20px;display:flex;justify-content:space-between;align-items:center;gap:16px}
 .site-footer a{color:#dbe2f3;text-decoration:none;margin-left:14px}
 .site-footer a:hover{text-decoration:underline}
@@ -171,3 +168,80 @@ pre code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, m
 h3 code, h4 code { font-size:.95em; }
 .hero-visual .badges .badge code { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
 
+.section-subtitle {
+  font-size: 22px;
+  font-weight: 600;
+  margin-bottom: 12px;
+}
+
+.architecture-flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+}
+
+.flow-item {
+  padding: 12px 20px;
+  background: #13142a;
+  border: 1px solid #1e2038;
+  border-radius: 10px;
+  width: 260px;
+}
+.flow-item span { font-size: 12px; opacity: 0.7; }
+
+.flow-arrow { margin: 4px 0; opacity: 0.4; }
+
+/* 표 */
+.security-table {
+  display: grid;
+  gap: 6px;
+}
+.security-table .row {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr 1fr 1.2fr 1.2fr;
+  background: #101125;
+  border: 1px solid #1a1c33;
+  padding: 10px;
+  border-radius: 8px;
+}
+.security-table .header {
+  background: #181a40;
+  font-weight: 600;
+}
+
+/* 카드 3열 */
+.security-cards {
+  display: grid;
+  gap: 20px;
+}
+.grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+/* 로드맵 */
+.roadmap {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+}
+.roadmap .stage {
+  flex: 1;
+  padding: 16px;
+  background: #13142a;
+  border: 1px solid #1e2038;
+  border-radius: 12px;
+}
+.roadmap .stage strong {
+  font-size: 18px;
+  display: block;
+  margin-bottom: 6px;
+}
+.roadmap .stage span { opacity: 0.7; font-size: 12px; }
+
+/* 카드 기본 */
+.card {
+  padding: 20px;
+  background: #13142a;
+  border: 1px solid #1e2038;
+  border-radius: 12px;
+}

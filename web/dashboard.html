@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MST 네트워크 대시보드</title>
+  <link rel="stylesheet" href="./style.css" />
+  <style>
+    .dash-container { max-width:900px;margin:40px auto;padding:20px; }
+    table { width:100%; border-collapse: collapse; margin-top:20px;}
+    th, td { padding:10px; border-bottom:1px solid #ddd; text-align:left; }
+    th { background:#151823; 
+    color:#dce0f5; }
+    .refresh-btn {
+      padding:10px 16px;
+      background:#0284c7;
+      color:white;
+      border-radius:6px;
+      display:inline-block;
+      cursor:pointer;
+      margin-top:10px;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <div class="hdr-left">
+        <h1>머스트리 네트워크</h1>
+        <nav class="menu">
+          <a href="./index.html">홈</a>
+          <a href="./network.html">네트워크 생성 서비스</a>
+          <a href="./api.html">API 리스트</a>
+          <a href="./api-guide.html">API 가이드</a>
+          <a href="./security.html">보안 정책</a>
+          <a href="./dashboard.html" class="active">대시보드</a>
+          <a href="./bridge.html">브릿지 (준비중)</a>
+          <a href="./sbt.html">SBT (준비중)</a>
+          <a href="./rwa.html">RWA (준비중)</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+<section class="hero hero-visual">
+  <div class="hero-bg"></div>
+  <div class="container hero-inner">
+    <p class="eyebrow">Network Dashboard</p>
+    <h1>MST 네트워크 토큰 잔액 대시보드</h1>
+    <p class="sub">MST 네트워크의 주요 지갑 잔액을 실시간 모니터링합니다.</p>
+  </div>
+</section>
+
+  <main class="dash-container">
+    <h2>MST 네이티브 토큰 잔액 대시보드</h2>
+    <p>아래 표는 geth 기반 PoA 네트워크의 주요 지갑 잔액을 실시간으로 표시합니다.</p>
+
+    <div id="updateTime" style="margin-top:10px;color:#555;"></div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>구분</th>
+          <th>주소</th>
+          <th>잔액 (MST)</th>
+        </tr>
+      </thead>
+      <tbody id="walletTable"></tbody>
+    </table>
+
+    <div class="refresh-btn" onclick="loadBalances()">새로고침</div>
+  </main>
+
+  <script>
+    async function loadBalances() {
+      const res = await fetch("http://localhost:4000/api/balances");
+      const json = await res.json();
+
+      const tbody = document.getElementById("walletTable");
+      tbody.innerHTML = "";
+
+      json.data.forEach(row => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${row.label}</td>
+          <td>${row.address}</td>
+          <td>${row.balance.toLocaleString()}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      document.getElementById("updateTime").innerText =
+        "업데이트 시각: " + new Date(json.updated).toLocaleString();
+    }
+
+    loadBalances();
+  </script>
+</body>
+</html>

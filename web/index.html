@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>머스트리 네트워크 · MST 담보형 자체 네트워크 제작</title>
-  <meta name="description" content="머스트리 코인을 담보로 1:100 비율로 전용 블록체인 네트워크를 제작해드립니다. 신청 후 1시간 이내 개설." />
+  <title>머스트리 네트워크 · 블록체인 & NFT API 서비스</title>
+  <meta name="description" content="머스트리는 1억개 총발행량 기반의 자체 네트워크와 NFT API를 제공하는 블록체인 인프라 기업입니다." />
   <link rel="stylesheet" href="./style.css" />
 </head>
 
@@ -16,9 +16,10 @@
         <nav class="menu">
           <a href="./index.html" class="active">홈</a>
           <a href="./network.html">네트워크 생성 서비스</a>
-          <a href="./api.html">API 제공 서비스</a>
-          <a href="./api-guide.html">API 사용 설명 서비스</a>
+          <a href="./api.html">API 리스트</a>
+          <a href="./api-guide.html">API 가이드</a>
           <a href="./security.html">보안 정책</a>
+          <a href="./dashboard.html">대시보드</a>
           <a href="./bridge.html">브릿지 (준비중)</a>
           <a href="./sbt.html">SBT (준비중)</a>
           <a href="./rwa.html">RWA (준비중)</a>
@@ -32,117 +33,54 @@
     <section class="hero hero-visual">
       <div class="hero-bg" aria-hidden="true"></div>
       <div class="container hero-inner">
-        <p class="eyebrow">MST 담보형 자체 네트워크 생성</p>
-        <h1>머스트리 코인을 담보로<br>1:100 비율의 전용 네트워크 제작</h1>
+        <p class="eyebrow">블록체인 네트워크 & NFT 인프라 제공 기업</p>
+        <h1>머스트리<br>기업용 자체 네트워크 & NFT API 제공</h1>
         <p class="sub">
-          귀사의 브랜드로 운영되는 전용 PoA 네트워크를 <strong>MST 코인 담보 1:100</strong> 비율로 발행해드립니다.<br>
-          신청 후 <strong>최대 1시간 이내</strong> 네트워크가 개설됩니다.
+          머스트리는 총 발행량 <strong>100,000,000 MST</strong>를 기반으로 한 독립적 블록체인 네트워크와 NFT 발행 API를 제공합니다.<br>
+          기업은 머스트리 인프라를 활용해 전용 네트워크를 손쉽게 구축할 수 있습니다.
         </p>
         <div class="cta-row">
-          <a class="btn primary" href="#apply">지금 신청하기</a>
-          <a class="btn" href="#policy">정책 보기</a>
+          <a class="btn primary" href="#apply">네트워크 신청하기</a>
+          <a class="btn" href="#service">서비스 소개</a>
         </div>
         <div class="badges">
-          <span class="badge">총발행 MST 100,000,000</span>
-          <span class="badge">담보 비율 1:100 고정</span>
-          <span class="badge">GT 2,000개/체인 (1,000·1,000)</span>
-          <span class="badge">1시간 내 생성 서비스</span>
+          <span class="badge">총발행 MST: 100,000,000</span>
+          <span class="badge">전용 네트워크 자동 구축</span>
+          <span class="badge">기업용 NFT API 제공</span>
+          <span class="badge">PoA 기반 독립 체인</span>
         </div>
       </div>
     </section>
 
-    <!-- ===== 서비스 개요 ===== -->
-    <section class="section">
+    <!-- ===== 서비스 소개 ===== -->
+    <section id="service" class="section">
       <div class="container grid cols-2">
         <article class="card">
-          <h3>서비스 개요</h3>
+          <h3>머스트리 네트워크란?</h3>
           <p>
-            머스트리 네트워크는 <strong>MST 코인 담보</strong>를 기반으로<br>
-            1:100 비율의 가치로 전용 블록체인을 생성해드리는 서비스입니다.<br><br>
-            회사명과 연락처만 입력하면 즉시 생성 프로세스가 시작되며,<br>
-            약 1시간 이내 귀사 전용 <strong>PoA 기반 네트워크</strong>가 개설됩니다.
+            머스트리는 기업이 자체적으로 운영 가능한 <strong>전용 블록체인 네트워크</strong>를 제공하는
+            인프라 전문 기업입니다. 총 1억 MST 발행량을 기반으로 PoA 구조의 확장 가능한 네트워크를
+            기업별로 생성해드립니다.
           </p>
           <ul class="small">
-            <li>예치된 MST는 담보로 잠기며, 네트워크 가치(PT)는 100배로 산정됩니다.</li>
-            <li>모든 수수료와 운영 비용은 MST로 결제됩니다.</li>
-            <li>다운사이드 감액 금지: 담보율은 항상 1:100 이상으로 유지됩니다.</li>
+            <li>전용 체인·검증자 세트 자동 구성</li>
+            <li>기업 단위 네트워크 독립 운영</li>
+            <li>보안 정책 및 거버넌스 템플릿 지원</li>
           </ul>
         </article>
 
         <article class="card">
-          <h3>신청 절차</h3>
-          <ol class="small">
-            <li><strong>1단계:</strong> 아래 폼에 회사명, 연락처, 예치 MST 수량을 입력합니다.</li>
-            <li><strong>2단계:</strong> MST 예치 확인 후 네트워크 발행이 자동 진행됩니다.</li>
-            <li><strong>3단계:</strong> 1시간 이내 전용 URL과 체인ID가 메일로 안내됩니다.</li>
-          </ol>
+          <h3>NFT API 서비스</h3>
+          <p>
+            실물·권리·멤버십 등 다양한 NFT를 <strong>API 기반</strong>으로 쉽게 발행할 수 있는
+            NFT 관리 플랫폼을 제공합니다.
+          </p>
+          <ul class="small">
+            <li>온체인 메타데이터 / SVG 생성 지원</li>
+            <li>권리 기반 특수 NFT 발행 가능</li>
+            <li>간단한 REST API로 기업 시스템과 연동</li>
+          </ul>
         </article>
-      </div>
-    </section>
-
-    <!-- ===== 정책 ===== -->
-    <section id="policy" class="section">
-      <div class="container">
-        <h2 class="section-title">정책 및 구조</h2>
-        <div class="grid cols-3">
-          <article class="card">
-            <h3>1) 담보·발행 원칙</h3>
-            <p class="lead">예치된 MST 코인을 담보로, 1:100 비율의 네트워크 가치(PT)가 발행됩니다.</p>
-            <div class="formula">
-              <span class="kbd">네트워크 가치 = 예치 MST × 100</span>
-              <span class="kbd">담보 비율 1:100 (고정)</span>
-              <span class="kbd">신청 후 1시간 내 개설</span>
-            </div>
-          </article>
-          <article class="card">
-            <h3>2) 사용 한도 & 리필</h3>
-            <p class="lead">네트워크 사용량은 발행 가치(PT) 한도 내에서 운영됩니다. 더 필요할 경우 MST 추가 예치로 즉시 확장됩니다.</p>
-            <div class="formula">
-              <span class="kbd">사용 상한(PT) = 예치 MST × 100</span>
-            </div>
-          </article>
-          <article class="card">
-            <h3>3) 보안 및 거버넌스</h3>
-            <p class="lead">모든 체인은 독립된 검증자 세트를 가지며, GT(거버넌스 토큰) 2,000개로 운영됩니다.</p>
-            <ul class="small">
-              <li>당사 1,000개, 협력사 1,000개</li>
-              <li>브릿지/수수료/업그레이드 승인 권한</li>
-              <li>응급 정지 및 재개는 멀티시그 처리</li>
-            </ul>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <!-- ===== 신청 폼 ===== -->
-    <section id="apply" class="section">
-      <div class="container">
-        <h2 class="section-title">네트워크 생성 신청</h2>
-        <p class="lead">입력하신 정보는 내부 승인용으로만 사용되며, 확인 후 1시간 내 생성 결과를 안내드립니다.</p>
-
-        <form id="applyForm" class="card" style="max-width:640px;margin:0 auto;">
-          <div class="field">
-            <label for="company">회사명</label>
-            <input type="text" id="company" required placeholder="예: (주)머스트리테크" />
-          </div>
-          <div class="field">
-            <label for="contact">연락처 / 이메일</label>
-            <input type="text" id="contact" required placeholder="예: 010-1234-5678 또는 example@company.com" />
-          </div>
-          <div class="field">
-            <label for="mstAmount">예치할 MST 수량</label>
-            <input type="number" id="mstAmount" required placeholder="예: 1000" min="1" />
-          </div>
-          <div class="field">
-            <label for="memo">기타 요청사항 (선택)</label>
-            <textarea id="memo" rows="3" placeholder="도메인, 네트워크명 등 추가 요청사항을 입력하세요."></textarea>
-          </div>
-          <div class="cta-row" style="justify-content:center;">
-            <button type="submit" class="btn primary">신청 정보 저장 및 생성 요청</button>
-          </div>
-        </form>
-
-        <p id="applyResult" class="small" style="text-align:center;margin-top:12px;color:#7dd3fc;"></p>
       </div>
     </section>
 
@@ -152,12 +90,12 @@
         <h2 class="section-title">서비스 안내</h2>
         <div class="card">
           <p>
-            “머스트리 네트워크는 실물담보 토큰화 경험을 기반으로, 기업이 직접 운영 가능한
-            <strong>전용 블록체인 네트워크</strong>를 빠르게 구축할 수 있도록 지원합니다.<br>
-            모든 신청은 자동화되어 있으며, 신청 후 1시간 내 네트워크가 생성됩니다.”
+            머스트리는 기업이 손쉽게 자체 블록체인 네트워크를 운영할 수 있도록
+            <strong>PoA 기반 전용 체인 생성</strong>과 <strong>NFT API 인프라</strong>를 함께 제공합니다.
+            모든 생성 및 발행 절차는 자동화되어 있으며, 빠르고 안정적인 환경을 제공합니다.
           </p>
         </div>
-        <p class="small">본 서비스는 정보 제공 목적이며, MST는 네트워크 담보 자산으로만 사용됩니다.</p>
+        <p class="small">본 서비스는 기업용 네트워크 및 NFT 인프라 제공을 위한 전문 기술 서비스입니다.</p>
       </div>
     </section>
   </main>
