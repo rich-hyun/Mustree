@@ -245,3 +245,77 @@ h3 code, h4 code { font-size:.95em; }
   border: 1px solid #1e2038;
   border-radius: 12px;
 }
+
+/* ===========================
+   Hero Section 스타일
+=========================== */
+.hero {
+  width: 100%;
+  padding: 120px 20px 150px;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hero-inner {
+  max-width: 900px;
+}
+
+.hero h1 {
+  font-size: 54px;
+  font-weight: 800;
+  line-height: 1.3;
+  margin-bottom: 30px;
+  background: linear-gradient(90deg, #8a7dff, #00d1ff);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.hero h1 span {
+  font-size: 48px;
+  display: block;
+}
+
+.hero .sub {
+  font-size: 18px;
+  color: #c8ccdd;
+  line-height: 1.7;
+  margin-bottom: 40px;
+}
+
+.hero-btns {
+  margin-top: 20px;
+}
+
+.btn-primary,
+.btn-secondary {
+  display: inline-block;
+  padding: 14px 32px;
+  border-radius: 10px;
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 8px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.btn-primary {
+  background: #8a7dff;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #7a6cf5;
+}
+
+.btn-secondary {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(4px);
+  color: #e9ecf6;
+  border: 1px solid rgba(255,255,255,0.15);
+}
+
+.btn-secondary:hover {
+  background: rgba(255,255,255,0.2);
+}
