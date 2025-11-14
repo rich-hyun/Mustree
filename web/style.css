@@ -319,3 +319,14 @@ h3 code, h4 code { font-size:.95em; }
 .btn-secondary:hover {
   background: rgba(255,255,255,0.2);
 }
+
+/* 주소 컬럼만 기본 블러 처리 */
+#walletTable tr td:nth-child(2) {
+  filter: blur(6px);
+  transition: filter 0.2s ease;
+}
+
+/* 해당 행을 hover하면 주소만 선명하게 */
+#walletTable tr:hover td:nth-child(2) {
+  filter: blur(0);
+}
