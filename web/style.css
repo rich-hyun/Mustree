@@ -88,7 +88,7 @@ body {
 .hero .container{position:relative;z-index:1}
 .hero .eyebrow{letter-spacing:.12em;color:#b7bfe0;text-transform:uppercase;font-size:12px;margin:0}
 .hero h1{font-size:42px;line-height:1.2;margin:10px 0 8px}
-.hero .sub{color:#cdd3e7;max-width:760px;margin:0}
+.hero .sub{color:#cdd3e7;max-width:1200px;margin:0}
 
 /* ============ Cards ============ */
 .card{
