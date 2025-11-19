@@ -74,7 +74,7 @@
 
   <script>
     async function loadBalances() {
-      const res = await fetch("http://localhost:4000/api/balances");
+      const res = await fetch("http://203.252.147.197:4000/api/balances");
       const json = await res.json();
 
       const tbody = document.getElementById("walletTable");
