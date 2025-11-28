@@ -330,3 +330,55 @@ h3 code, h4 code { font-size:.95em; }
 #walletTable tr:hover td:nth-child(2) {
   filter: blur(0);
 }
+
+.company-list .card {
+  margin-bottom: 28px; /* 원하는 간격 */
+}
+.company-list .card:last-child {
+  margin-bottom: 0; /* 마지막만 간격 제거 */
+}
+
+.category-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 28px;
+  margin-top: 24px;
+}
+
+@media (max-width: 980px) {
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 640px) {
+  .category-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.category-box {
+  padding: 20px;
+  background: #101125;
+  border: 1px solid #1e2038;
+  border-radius: 14px;
+}
+
+.category-box h3 {
+  margin-top: 0;
+  margin-bottom: 14px;
+  font-size: 20px;
+  color: var(--ink);
+  border-left: 4px solid var(--brand);
+  padding-left: 10px;
+}
+
+.card.small {
+  padding: 14px;
+  margin-bottom: 12px;
+}
+
+.card.small h4 {
+  font-size: 15px;
+  margin-bottom: 6px;
+}
