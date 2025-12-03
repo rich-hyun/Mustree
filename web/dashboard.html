@@ -20,6 +20,38 @@
       cursor:pointer;
       margin-top:10px;
     }
+    .update-time-neo {
+      margin-top: 40px;
+      text-align: center;
+
+      /* ★ 글자 크기 3배 증가 */
+      font-size: 45px;
+      font-weight: 800;
+
+      color: #5cd4ff;
+
+      text-shadow:
+        0 0 12px rgba(0, 200, 255, 1),
+        0 0 22px rgba(0, 200, 255, 0.9),
+        0 0 38px rgba(0, 200, 255, 0.7),
+        0 0 60px rgba(0, 200, 255, 0.45);
+
+      opacity: 0;
+
+      animation: fadeIn 1.4s ease-out forwards,
+                glowPulse 2.4s infinite alternate;
+    }
+
+    @keyframes fadeIn {
+      0% { opacity: 0; transform: translateY(12px); }
+      100% { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes glowPulse {
+      0% { text-shadow: 0 0 14px rgba(0, 200, 255, 0.7); }
+      100% { text-shadow: 0 0 38px rgba(0, 200, 255, 1); }
+    }
+
   </style>
 </head>
 
@@ -36,7 +68,7 @@
           <a href="./security.html">보안 정책</a>
           <a href="./dashboard.html" class="active">대시보드</a>
           <a href="./bridge.html">브릿지 (준비중)</a>
-          <a href="./sbt.html">SBT (준비중)</a>
+          <a href="./sbt.html">SBT 생성</a>
           <a href="./rwa.html">RWA (준비중)</a>
         </nav>
       </div>
@@ -49,6 +81,7 @@
     <p class="eyebrow">Network Dashboard</p>
     <h1>MST 네트워크 토큰 잔액 대시보드</h1>
     <p class="sub">MST 네트워크의 주요 지갑 잔액을 실시간 모니터링합니다.</p>
+    <div id="updateTimeBig" class="update-time-neo"></div>
   </div>
 </section>
 
@@ -56,7 +89,7 @@
     <h2>MST 네이티브 토큰 잔액 대시보드</h2>
     <p>아래 표는 MST 네트워크의 주요 지갑 잔액을 실시간으로 표시합니다.</p>
 
-    <div id="updateTime" style="margin-top:10px;color:#555;"></div>
+    <div id="updateTime" style="margin-top:10px;color:#555; display:none;"></div>
 
     <table>
       <thead>
@@ -90,8 +123,15 @@
         tbody.appendChild(tr);
       });
 
-      document.getElementById("updateTime").innerText =
-        "업데이트 시각: " + new Date(json.updated).toLocaleString();
+      const formattedTime = new Date(json.updated).toLocaleString();
+      const text = `⟳ 업데이트 시각: ${formattedTime}`;
+
+      // [UPGRADE] 네온 스타일 영역 업데이트
+      const updateElem = document.getElementById("updateTimeBig");
+      updateElem.innerText = text;
+      updateElem.style.animation = "none";      // 재실행 위해 초기화
+      void updateElem.offsetWidth;              // 강제 리플로우
+      updateElem.style.animation = "";          // 애니메이션 재적용
     }
 
     loadBalances();
