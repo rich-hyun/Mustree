@@ -1,0 +1,303 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>NFT 생성</title>
+  <link rel="stylesheet" href="./style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.2/dist/ethers.umd.min.js"></script>
+</head>
+
+<body>
+<header class="app-header">
+  <div class="app-header-inner">
+    <div class="hdr-left">
+      <h1>머스트리 네트워크</h1>
+      <nav class="menu">
+          <a href="./index.html">홈</a>
+          <a href="./network.html">네트워크 생성 서비스</a>
+          <a href="./api.html">API 제공 서비스</a>
+          <a href="./api-guide.html">API 사용 설명 서비스</a>
+          <a href="./security.html">보안 정책</a>
+          <a href="./bridge.html">브릿지 (준비중)</a>
+          <a href="./sbt.html">SBT 생성</a>
+          <a href="./rwa.html">RWA (준비중)</a>
+          <a href="./nft.html" class="active">NFT 생성</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ---------------------------- -->
+<!--   네트워크 선택 (재사용)     -->
+<!-- ---------------------------- -->
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">네트워크 선택</h2>
+
+    <div class="field">
+      <label>네트워크 선택</label>
+      <select id="netSelect"></select>
+    </div>
+
+    <div class="card mono" style="margin-top:12px; padding:12px;">
+      <div><b>네트워크 이름:</b> <span id="netName"></span></div>
+      <div><b>RPC URL:</b> <span id="netRpc"></span></div>
+      <div><b>Chain ID:</b> <span id="netChain"></span></div>
+      <div><b>Symbol:</b> <span id="netSymbol"></span></div>
+    </div>
+
+    <p class="small" id="mmStatus" style="margin-top:8px;"></p>
+  </div>
+</section>
+
+
+<!-- ---------------------------- -->
+<!--        NFT 발행 UI           -->
+<!-- ---------------------------- -->
+<section class="section">
+  <div class="container">
+    <h2 class="section-title">NFT 코드 자동 생성 & 발행</h2>
+
+    <div class="form">
+
+      <div class="field">
+        <label>지갑 주소 (to)</label>
+        <input id="owner" placeholder="0x..." />
+      </div>
+
+      <div class="field">
+        <label>NFT 이름 (label)</label>
+        <input id="nftName" placeholder="예: MyNFT" />
+      </div>
+
+      <div class="field">
+        <label>Metadata(JSON)</label>
+        <input id="metadata" placeholder='예: {"img":"url","desc":"..."}' />
+      </div>
+
+    </div>
+
+    <button id="codeGen" class="btn primary" style="margin-top:12px;">
+      코드 생성
+    </button>
+
+    <button id="txExec" class="btn" style="margin-left:8px;">
+      NFT 발행 실행 (MetaMask)
+    </button>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>Solidity 코드 / 로그</h3>
+      <pre id="logOut" class="mono" style="white-space:pre-wrap;"></pre>
+    </div>
+
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="foot">© Mustree Network</div>
+</footer>
+
+<script>
+/* ------------------------------
+   1) 네트워크 정보
+------------------------------ */
+const networks = [
+  { name:"Mustree", rpc:"https://block.mst3.site", chain:7601, symbol:"MST" },
+  { name:"JKK-TMZ", rpc:"https://jkk.mst2.site", chain:7707, symbol:"TMZ" },
+  { name:"KukminBank", rpc:"https://rpc.mstblock.com", chain:1213, symbol:"KBB" },
+  { name:"NABIZAM", rpc:"https://nbmst.mst2.site", chain:7602, symbol:"NBZ" },
+  { name:"MDPCD", rpc:"https://mdpcd.mst2.site", chain:7603, symbol:"MDP" }
+];
+
+// Mustree 먼저 정렬
+const sorted = [
+  networks.find(n=>n.name==="Mustree"),
+  ...networks.filter(n=>n.name!=="Mustree").sort((a,b)=>a.name.localeCompare(b.name))
+];
+
+// 셀렉트 박스 구성
+const netSelect = document.getElementById("netSelect");
+sorted.forEach(n=>{
+  const opt=document.createElement("option");
+  opt.value=n.name;
+  opt.textContent=n.name;
+  netSelect.appendChild(opt);
+});
+
+function getSelectedNet(){
+  return sorted.find(n=>n.name===netSelect.value);
+}
+
+function updateNetworkInfo(){
+  const n=getSelectedNet();
+  document.getElementById("netName").textContent=n.name;
+  document.getElementById("netRpc").textContent=n.rpc;
+  document.getElementById("netChain").textContent=n.chain;
+  document.getElementById("netSymbol").textContent=n.symbol;
+}
+updateNetworkInfo();
+
+async function switchNetwork(net){
+  const chainHex="0x"+net.chain.toString(16);
+  try {
+    await ethereum.request({
+      method:"wallet_switchEthereumChain",
+      params:[{chainId:chainHex}]
+    });
+  } catch(e) {
+    if (e.code===4902) {
+      await ethereum.request({
+        method:"wallet_addEthereumChain",
+        params:[{
+          chainId:chainHex,
+          chainName:net.name,
+          rpcUrls:[net.rpc],
+          nativeCurrency:{name:net.symbol, symbol:net.symbol, decimals:18}
+        }]
+      });
+      await ethereum.request({
+        method:"wallet_switchEthereumChain",
+        params:[{chainId:chainHex}]
+      });
+    }
+  }
+}
+
+netSelect.addEventListener("change", async()=>{
+  updateNetworkInfo();
+  await switchNetwork(getSelectedNet());
+});
+
+/* ------------------------------
+   2) NFT 컨트랙트 주소 (네가 채워넣기)
+------------------------------ */
+const CONTRACTS = {
+  "Mustree":    "0x0000000000000000000000000000000000000001",
+  "JKK-TMZ":    "0x0000000000000000000000000000000000000002",
+  "KukminBank": "0x0000000000000000000000000000000000000003",
+  "NABIZAM":    "0x0000000000000000000000000000000000000004",
+  "MDPCD":      "0x0000000000000000000000000000000000000005",
+};
+
+/* ------------------------------
+   3) NFT ABI (네가 실제 ABI 넣으면 됨)
+------------------------------ */
+const NFT_ABI = [
+  {
+    "inputs":[
+      {"name":"to","type":"address"},
+      {"name":"label","type":"string"},
+      {"name":"metadata","type":"string"}
+    ],
+    "name":"mintNFT",
+    "outputs":[{"type":"uint256"}],
+    "stateMutability":"nonpayable",
+    "type":"function"
+  }
+];
+
+/* ------------------------------
+   4) 코드 생성
+------------------------------ */
+const logOut=document.getElementById("logOut");
+
+document.getElementById("codeGen").addEventListener("click", ()=>{
+  const owner=document.getElementById("owner").value.trim();
+  const nftName=document.getElementById("nftName").value.trim();
+  const metadata=document.getElementById("metadata").value.trim() || "{}";
+
+  if(!owner || !nftName){
+    logOut.textContent="모든 필드를 입력하세요.";
+    return;
+  }
+
+  const net=getSelectedNet();
+
+  const code=`
+pragma solidity ^0.8.20;
+
+interface INFTVault {
+    function mintNFT(
+        address to,
+        string memory label,
+        string memory metadata
+    ) external returns (uint256);
+}
+
+contract NFT_Mint_${net.name} {
+    address constant VAULT = 0xYourNFTVault;
+    INFTVault constant vault = INFTVault(VAULT);
+
+    function createNFT() external {
+        vault.mintNFT(
+            ${JSON.stringify(owner)},
+            ${JSON.stringify(nftName)},
+            ${JSON.stringify(metadata)}
+        );
+    }
+}
+  `.trim();
+
+  logOut.textContent = code;
+});
+
+/* ------------------------------
+   5) NFT 발행 실행
+------------------------------ */
+document.getElementById("txExec").addEventListener("click", execNFT);
+
+async function execNFT(){
+  const owner=document.getElementById("owner").value.trim();
+  const nftName=document.getElementById("nftName").value.trim();
+  const metadata=document.getElementById("metadata").value.trim() || "{}";
+
+  if(!owner || !nftName){
+    logOut.textContent="❌ 모든 필드를 입력하세요.";
+    return;
+  }
+
+  try {
+    await ethereum.request({method:"eth_requestAccounts"});
+
+    const net=getSelectedNet();
+    const CONTRACT_ADDRESS=CONTRACTS[net.name];
+
+    const provider=new ethers.BrowserProvider(ethereum);
+    const signer=await provider.getSigner();
+
+    const contract=new ethers.Contract(CONTRACT_ADDRESS, NFT_ABI, signer);
+
+    logOut.textContent="트랜잭션 생성 중...";
+
+    // tokenId 예측
+    const predicted = await contract.mintNFT.staticCall(owner, nftName, metadata);
+
+    const tx = await contract.mintNFT(owner, nftName, metadata);
+
+    logOut.textContent=
+      `TX 전송됨\n` +
+      `예상 TokenID: ${predicted}\n` +
+      `TX Hash: ${tx.hash}`;
+
+    const receipt = await tx.wait();
+
+    logOut.textContent =
+      `🎉 NFT 발행 성공!\n` +
+      `Token ID: ${predicted}\n` +
+      `TX: ${receipt.hash}\n` +
+      `Block: ${receipt.blockNumber}`;
+
+  } catch(err){
+    logOut.textContent="오류: "+err.message;
+  }
+}
+
+</script>
+
+</body>
+</html>
