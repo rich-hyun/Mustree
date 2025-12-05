@@ -95,6 +95,9 @@
       NFT 발행 실행 (MetaMask)
     </button>
 
+	<button id="pyExport" class="btn" style="margin-left:8px;">Python 실행 스크립트 복사</button>
+
+
     <div class="card" style="margin-top:16px;">
       <h3>Solidity 코드 / 로그</h3>
       <pre id="logOut" class="mono" style="white-space:pre-wrap;"></pre>
@@ -796,6 +799,103 @@ async function execNFT(){
     logOut.textContent="오류: "+err.message;
   }
 }
+document.getElementById("pyExport").addEventListener("click", () => {
+  const owner = document.getElementById("owner").value.trim();
+  const nftName = document.getElementById("nftName").value.trim();
+  const metadataRaw = document.getElementById("metadata").value.trim() || "{}";
+
+  if (!owner || !nftName) {
+    logOut.textContent = "❌ 모든 필드를 입력해야 Python 스크립트를 생성할 수 있습니다.";
+    return;
+  }
+
+  const net = getSelectedNet();
+  const CONTRACT = CONTRACTS[net.name];
+  const ABI = JSON.stringify(NFT_ABI, null, 2);
+
+  // ⭐ NEW 1: owner checksum 변환
+  const checksumOwner = ethers.getAddress(owner);
+
+  // ⭐ NEW 2: metadata JSON 안전 변환
+  let safeMetadata = "{}";
+  try {
+    safeMetadata = JSON.stringify(JSON.parse(metadataRaw));
+  } catch {
+    alert("❌ Metadata가 JSON 형식이 아닙니다.");
+    return;
+  }
+
+  const pythonCode = `
+# ----------------------------------------------------------
+# Mustree Network - NFT Minting Script (자동 생성됨)
+# ----------------------------------------------------------
+
+# pip install web3
+
+import json
+from web3 import Web3
+
+RPC = "${net.rpc}"
+CHAIN_ID = ${net.chain}
+CONTRACT = "${CONTRACT}"
+
+PRIVATE_KEY = "0xYourPrivateKeyHere"
+
+ABI = json.loads(\"\"\"${ABI}\"\"\")
+
+w3 = Web3(Web3.HTTPProvider(RPC))
+acct = w3.eth.account.from_key(PRIVATE_KEY)
+contract = w3.eth.contract(address=CONTRACT, abi=ABI)
+
+tx = contract.functions.mintNFT(
+    Web3.to_checksum_address("${checksumOwner}"),
+    "${nftName}",
+    '${safeMetadata}'
+).build_transaction({
+    "from": acct.address,
+    "nonce": w3.eth.get_transaction_count(acct.address),
+    "gas": 600000,
+    "gasPrice": w3.eth.gas_price,
+    "chainId": CHAIN_ID,
+})
+
+
+# 2) 서명 & 전송
+signed = acct.sign_transaction(tx)
+tx_hash = w3.eth.send_raw_transaction(signed.raw_transaction)
+
+print("🚀 NFT Mint TX Hash:", tx_hash.hex())
+print("⏳ Waiting for confirmation...")
+
+# 3) 블록 포함될 때까지 대기
+receipt = w3.eth.wait_for_transaction_receipt(tx_hash)
+
+if receipt.status != 1:
+    raise Exception("❌ NFT Mint Failed (Transaction Reverted)")
+else:
+    print("✅ NFT Mint Success!")
+
+# 4) Token ID 추출 (Event or nextTokenId fallback)
+try:
+    event_log = receipt["logs"][0]
+    token_id = int(event_log["data"], 16)
+except:
+    token_id = contract.functions.nextTokenId().call() - 1
+
+# 5) Owner 조회
+owner_addr = contract.functions.ownerOf(token_id).call()
+
+print("\\n🎯 MINT RESULT")
+print("---------------------------")
+print("📌 Token ID:", token_id)
+print("👤 Owner:", owner_addr)
+print("📜 Contract:", CONTRACT)
+print("---------------------------")
+  `.trim();
+
+  navigator.clipboard.writeText(pythonCode);
+  alert("📌 Python 실행 스크립트가 클립보드에 복사되었습니다!");
+});
 
 </script>
 

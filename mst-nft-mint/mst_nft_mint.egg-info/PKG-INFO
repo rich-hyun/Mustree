@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: mst-nft-mint
+Version: 0.1.0
+Summary: Mustree NFT Minting SDK
+Author-email: Mustree Network <dev@mustree.com>
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: web3>=6.0.0
+
+# mst-nft-mint
+Mustree NFT Minting Python SDK
