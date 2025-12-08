@@ -382,3 +382,14 @@ h3 code, h4 code { font-size:.95em; }
   font-size: 15px;
   margin-bottom: 6px;
 }
+
+/* 스테이킹 설명문용 */
+.text-block {
+  display: block;
+  margin-top: 8px;
+  max-width: 100%;
+  white-space: normal;
+  word-break: keep-all;   /* 한글 단어 중간에서 안 잘리게 */
+  line-height: 1.6;
+}
+

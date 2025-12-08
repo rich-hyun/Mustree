@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>브릿지 · MST ↔ PT</title>
-  <meta name="description" content="담보비율 C=10 기준으로 MST를 잠그고 PT를 발행하거나, 미사용 PT를 환매하는 브릿지" />
+  <title>스테이킹 · Mustree Network</title>
+  <meta name="description" content="여러 네트워크에서 MST 계열 토큰을 스테이킹하고 연 2% 보상을 주 단위로 수령하세요." />
   <link rel="stylesheet" href="./style.css" />
 </head>
 <body>
@@ -30,63 +30,153 @@
   </header>
 
   <main>
+    <!-- HERO 영역: 스테이킹용 카피 -->
     <section class="hero">
       <div class="hero-bg" aria-hidden="true"></div>
       <div class="container">
-        <p class="eyebrow">Bridge</p>
-        <h1>MST를 잠그고 PT를 발행하거나<br>미사용 PT를 환매하세요</h1>
-        <p class="sub">전역 담보비율 <b>C=10</b>을 적용합니다. 모든 수수료는 MST로 결제됩니다.</p>
+        <p class="eyebrow">Staking</p>
+        <h1>
+          여러 네트워크에서 토큰을<br />
+          스테이킹하고 연&nbsp;2% 보상을 받으세요
+        </h1>
+        <p class="sub">
+          <b>연 2% 고정 이자</b>, <b>1주일(24×7시간)</b>마다 보상 수령 가능.<br />
+          보상 토큰은 추후 지정할 <b>리워드 전용 지갑</b>에서 조금씩 빠져나가도록 설계됩니다.
+        </p>
         <div class="badges">
-          <span class="badge">PT = 예치 MST × r / C</span>
-          <span class="badge">기본 r: 500 (A/B=100)</span>
-          <span class="badge">다운사이드 감액 금지</span>
+          <span class="badge">APR: 2% / year</span>
+          <span class="badge">Claim 주기: 7일</span>
+          <span class="badge">네이티브: MST·TMZ·KBB·NBZ·MDP</span>
         </div>
       </div>
     </section>
 
+    <!-- [NEW] 네트워크 선택 섹션 -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">네트워크 선택</h2>
+        <p class="small">
+          스테이킹을 진행할 네트워크를 선택하세요. (지금은 UI만 구성되어 있고, 추후 이 선택값을 기반으로
+          실제 컨트랙트 주소·RPC를 연결해서 개발하면 됩니다.)
+        </p>
+
+        <div class="grid cols-2" style="gap: 24px; align-items:flex-start;">
+          <!-- 네트워크 셀렉트 -->
+          <div class="card">
+            <div class="form">
+              <div class="field">
+                <label for="netSelect">네트워크 선택</label>
+                <select id="netSelect"></select>
+              </div>
+              <p class="small">
+                * MetaMask / 지갑에서 이 네트워크로 전환 후 스테이킹 트랜잭션을 보내게 됩니다.
+                (온체인 연동은 다음 단계에서 구현)
+              </p>
+            </div>
+          </div>
+
+          <!-- 선택한 네트워크 정보 요약 -->
+          <div class="card">
+            <h3>선택된 네트워크 정보</h3>
+            <div class="net-info">
+              <p><b>이름</b> : <span id="netName" class="mono">-</span></p>
+              <p><b>체인 ID</b> : <span id="netChain" class="mono">-</span></p>
+              <p><b>RPC URL</b> : <span id="netRpc" class="mono">-</span></p>
+              <p><b>심볼</b> : <span id="netSymbol" class="mono">-</span></p>
+            </div>
+            <p class="note">
+              * 이 값들은 화면용 설정 값이며, 추후 실제 스테이킹 컨트랙트와 지갑 연결 시 사용됩니다.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 스테이킹 메인 UI -->
     <section class="section">
       <div class="container grid cols-2">
+        <!-- 좌측: 스테이킹/언스테이킹 -->
         <article class="card">
-          <h3>MST → PT (락업 & 민팅)</h3>
-          <p class="small">예치한 MST에 비례하여 PT가 발행됩니다.</p>
+          <h3>토큰 스테이킹</h3>
+          <p class="small">
+            선택한 네트워크의 토큰을 예치하고, 연&nbsp;2% 이자를 주 단위로 수령합니다.
+            여기서는 UI와 수학 로직만 구현해두고, 실제 컨트랙트 호출은 다음 단계에서 연결할 수 있게 해두었습니다.
+          </p>
+
           <div class="form">
-            <div class="field"><label for="r1">발행비율 r</label><input id="r1" type="number" value="500"></div>
-            <div class="field"><label for="c1">담보비율 C</label><input id="c1" type="number" value="10"></div>
-            <div class="field"><label for="mstIn">예치할 MST</label><input id="mstIn" type="number" placeholder="예: 1000"></div>
-            <div class="field"><label for="ptOut1">발행될 PT</label><input id="ptOut1" type="text" class="mono" readonly></div>
+            <div class="field">
+              <label for="stakeAmount">스테이킹 수량</label>
+              <input id="stakeAmount" type="number" min="0" step="any" placeholder="예: 1000" />
+            </div>
+
+            <div class="field">
+              <label for="lockPeriod">예상 스테이킹 기간 (주)</label>
+              <input id="lockPeriod" type="number" min="1" step="1" value="52" />
+              <p class="small">APR 2% 기준, 입력한 기간 동안의 예상 보상을 계산합니다.</p>
+            </div>
+
+            <div class="field">
+              <label>지갑 상태</label>
+              <div class="wallet-status">
+                <div>연결 상태: <span id="walletStatus" class="mono">연결 안 됨</span></div>
+                <div>주소: <span id="walletAddress" class="mono">-</span></div>
+              </div>
+            </div>
           </div>
-          <div class="cta-row"><button class="btn primary" id="calcMint">계산</button></div>
+
+          <div class="cta-row">
+            <button class="btn" id="btnConnect">지갑 연결 (추후 구현)</button>
+            <button class="btn primary" id="btnCalcReward">예상 보상 계산</button>
+          </div>
+
+          <div class="result">
+            <h4>예상 보상 (시뮬레이션)</h4>
+            <p class="small">실제 온체인 보상 로직도 이 수학을 그대로 사용하면 됩니다.</p>
+            <ul class="mono">
+              <li>연이율 (APR): 2%</li>
+              <li>연 보상 예상: <span id="estYearly">0</span></li>
+              <li>1주 보상 예상: <span id="estWeekly">0</span></li>
+              <li>입력 기간 전체 보상: <span id="estTotal">0</span></li>
+            </ul>
+          </div>
         </article>
 
+        <!-- 우측: Claim & 정책 설명 -->
         <article class="card">
-          <h3>PT → MST (환매)</h3>
-          <p class="small">미사용 PT만 환매 가능하며 수수료·쿨다운이 적용됩니다.</p>
+          <h3>보상 수령 & 정책</h3>
+          <p class="small">
+            실제 컨트랙트는 아래 조건을 강제하게 만들면 됩니다.
+          </p>
+          <ul class="small">
+            <li>① APR = <b>연 2%</b></li>
+            <li>② <b>claim()</b>은 마지막 수령 시점으로부터 <b>7일(24×7시간)</b>이 지나야 호출 가능</li>
+            <li>③ 보상은 지정한 <b>리워드 전용 지갑</b>에서 <b>조금씩 transferFrom</b>되도록 설계</li>
+          </ul>
+
           <div class="form">
-            <div class="field"><label for="r2">발행비율 r</label><input id="r2" type="number" value="500"></div>
-            <div class="field"><label for="c2">담보비율 C</label><input id="c2" type="number" value="10"></div>
-            <div class="field"><label for="ptIn">환매할 PT</label><input id="ptIn" type="number" placeholder="예: 500000"></div>
-            <div class="field"><label for="mstOut2">돌려받는 MST (수수료 전)</label><input id="mstOut2" type="text" class="mono" readonly></div>
+            <div class="field">
+              <label>마지막 보상 수령 시각 (예시)</label>
+              <input id="lastClaimAt" type="datetime-local" />
+              <p class="small">
+                * 실제 구현에서는 온체인에서 <code>lastClaimAt</code> (timestamp)을 읽어와서 UI에 표시하면 됩니다.
+              </p>
+            </div>
           </div>
-          <div class="cta-row"><button class="btn" id="calcRedeem">계산</button></div>
-          <p class="note">* 실제 수령액은 브릿지 수수료/쿨다운 정책에 따라 달라질 수 있습니다.</p>
+
+          <div class="result">
+            <h4>다음 Claim 가능 시각 (시뮬레이션)</h4>
+            <p>
+              <span id="nextClaimAt" class="mono">-</span><br />
+              <span class="small">오늘 기준으로 남은 시간: <span id="claimRemain" class="mono">-</span></span>
+            </p>
+          </div>
+
+          <p class="note">
+            * 지금은 계산만 하는 페이지이고, 실제로는 스테이킹 컨트랙트의<br />
+            <code>stake()</code>, <code>unstake()</code>, <code>claim()</code>을 호출하도록
+            <b>ethers.js + MetaMask</b> 를 붙이면 됩니다.
+          </p>
         </article>
-      </div>
-    </section>
-    <!--  네트워크 선택 버튼 섹션 -->
-    <section class="section" style="text-align:center;">
-      <div class="container">
-        <h2 class="section-title">[NEW] 네트워크 선택</h2>
-        <p class="small" style="margin-bottom:18px;">
-          아래 네트워크 중 하나를 선택하면 해당 브릿지 페이지로 이동합니다.
-        </p>
-        <div class="cta-row" style="justify-content:center;">
-          <a class="btn primary" href="https://rich-hyun.github.io/Bridge_Project/?network=TMZ" target="_blank" rel="noopener" id="linkTMZ">
-            TMZ 네트워크
-          </a>
-          <a class="btn primary" href="https://rich-hyun.github.io/Bridge_Project/?network=JKK" target="_blank" rel="noopener" id="linkJKK">
-            JKK 네트워크
-          </a>
-        </div>
       </div>
     </section>
   </main>
@@ -102,17 +192,139 @@
   </footer>
 
   <script>
-    const fmt = n => Number(n).toLocaleString('ko-KR');
-    document.getElementById('calcMint').addEventListener('click', ()=>{
-      const r=+r1.value||0, c=+c1.value||0, m=+mstIn.value||0;
-      if(!r||!c||!m){ ptOut1.value='입력값 확인'; return; }
-      ptOut1.value = fmt(m * r / c);
+    // ===========================
+    // 1) 네트워크 리스트
+    // ===========================
+    const networks = [
+      { id: "MST", name:"Mustree",   rpc:"https://block.mst3.site",    chain:7601, symbol:"MST" },
+      { id: "TMZ", name:"JKK-TMZ",   rpc:"https://jkk.mst2.site",      chain:7707, symbol:"TMZ" },
+      { id: "KBB", name:"KukminBank",rpc:"https://rpc.mstblock.com",   chain:1213, symbol:"KBB" },
+      { id: "NBZ", name:"NABIZAM",   rpc:"https://nbmst.mst2.site",    chain:7602, symbol:"NBZ" },
+      { id: "MDP", name:"MDPCD",     rpc:"https://mdpcd.mst2.site",    chain:7603, symbol:"MDP" }
+    ];
+
+    const netSelect = document.getElementById('netSelect');
+    const netNameEl = document.getElementById('netName');
+    const netChainEl = document.getElementById('netChain');
+    const netRpcEl = document.getElementById('netRpc');
+    const netSymbolEl = document.getElementById('netSymbol');
+
+    function populateNetworkSelect() {
+      networks.forEach((n, idx) => {
+        const opt = document.createElement('option');
+        opt.value = String(idx);
+        opt.textContent = `${n.name} (${n.symbol})`;
+        netSelect.appendChild(opt);
+      });
+      updateNetworkInfo(0);
+    }
+
+    function updateNetworkInfo(idx) {
+      const n = networks[idx];
+      if (!n) return;
+      netNameEl.textContent = n.name;
+      netChainEl.textContent = n.chain;
+      netRpcEl.textContent = n.rpc;
+      netSymbolEl.textContent = n.symbol;
+    }
+
+    netSelect.addEventListener('change', (e) => {
+      const idx = Number(e.target.value || 0);
+      updateNetworkInfo(idx);
     });
-    document.getElementById('calcRedeem').addEventListener('click', ()=>{
-      const r=+r2.value||0, c=+c2.value||0, p=+ptIn.value||0;
-      if(!r||!c||!p){ mstOut2.value='입력값 확인'; return; }
-      mstOut2.value = fmt(p * c / r);
+
+    // ===========================
+    // 2) 스테이킹 시뮬레이션 (연 2%, 주간 claim)
+    // ===========================
+    const stakeAmountInput = document.getElementById('stakeAmount');
+    const lockPeriodInput  = document.getElementById('lockPeriod');
+    const estYearlyEl      = document.getElementById('estYearly');
+    const estWeeklyEl      = document.getElementById('estWeekly');
+    const estTotalEl       = document.getElementById('estTotal');
+
+    const lastClaimInput   = document.getElementById('lastClaimAt');
+    const nextClaimAtEl    = document.getElementById('nextClaimAt');
+    const claimRemainEl    = document.getElementById('claimRemain');
+
+    const walletStatusEl   = document.getElementById('walletStatus');
+    const walletAddressEl  = document.getElementById('walletAddress');
+
+    // 숫자 포맷
+    const fmt = (n) => Number(n || 0).toLocaleString('ko-KR', { maximumFractionDigits: 6 });
+
+    // 예상 보상 계산 (UI 전용)
+    function calcRewards() {
+      const amount = Number(stakeAmountInput.value || 0);
+      const weeks  = Number(lockPeriodInput.value || 0);
+      if (!amount || !weeks) {
+        estYearlyEl.textContent = '0';
+        estWeeklyEl.textContent = '0';
+        estTotalEl.textContent  = '0';
+        return;
+      }
+
+      const apr        = 0.02;       // 2% / year
+      const yearly     = amount * apr;
+      const weekly     = yearly / 52;
+      const totalWeeks = weeks;
+      const total      = weekly * totalWeeks;
+
+      estYearlyEl.textContent = fmt(yearly);
+      estWeeklyEl.textContent = fmt(weekly);
+      estTotalEl.textContent  = fmt(total);
+    }
+
+    // 7일 claim 규칙 시뮬레이션
+    function updateClaimTime() {
+      const v = lastClaimInput.value;
+      if (!v) {
+        nextClaimAtEl.textContent = '-';
+        claimRemainEl.textContent = '-';
+        return;
+      }
+      const last = new Date(v);
+      if (isNaN(last.getTime())) {
+        nextClaimAtEl.textContent = '날짜 형식 오류';
+        claimRemainEl.textContent = '-';
+        return;
+      }
+      const next = new Date(last.getTime() + 7 * 24 * 60 * 60 * 1000);
+      nextClaimAtEl.textContent = next.toLocaleString();
+
+      const now = new Date();
+      const diffMs = next.getTime() - now.getTime();
+      if (diffMs <= 0) {
+        claimRemainEl.textContent = '지금 바로 수령 가능 (온체인 기준)';
+      } else {
+        const diffSec = Math.floor(diffMs / 1000);
+        const d = Math.floor(diffSec / 86400);
+        const h = Math.floor((diffSec % 86400) / 3600);
+        const m = Math.floor((diffSec % 3600) / 60);
+        const s = diffSec % 60;
+        claimRemainEl.textContent = `${d}일 ${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+      }
+    }
+
+    // “지갑 연결” 버튼은 지금은 형식만 유지 (나중에 ethers.js 붙이면 됨)
+    document.getElementById('btnConnect').addEventListener('click', () => {
+      alert('지갑 연결 로직은 다음 단계에서 ethers.js / MetaMask로 구현하면 됩니다.');
+      walletStatusEl.textContent = '로컬 테스트 모드';
+      walletAddressEl.textContent = '0xYourWalletHere';
     });
+
+    document.getElementById('btnCalcReward').addEventListener('click', () => {
+      calcRewards();
+      updateClaimTime();
+    });
+
+    // 입력 변경 시 자동 업데이트
+    stakeAmountInput.addEventListener('input', calcRewards);
+    lockPeriodInput.addEventListener('input', calcRewards);
+    lastClaimInput.addEventListener('change', updateClaimTime);
+
+    // 초기화
+    populateNetworkSelect();
+    calcRewards();
   </script>
 </body>
 </html>

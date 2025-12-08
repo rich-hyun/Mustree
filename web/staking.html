@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mustree Staking · MST ↔ wMST</title>
+  <meta name="description" content="MST를 wMST로 래핑하고, wMST를 스테이킹하여 MST 보상을 받는 페이지" />
+  <link rel="stylesheet" href="./style.css" />
+  <!-- ethers.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js"></script>
+</head>
+<body>
+  <header class="app-header">
+    <div class="app-header-inner">
+      <!-- 요청: 이 블록은 절대 수정하지 않음 -->
+      <div class="hdr-left">
+        <h1>머스트리 네트워크</h1>
+        <nav class="menu">
+          <a href="./index.html">홈</a>
+          <a href="./network.html">네트워크 생성 서비스</a>
+          <a href="./api.html">API 리스트</a>
+          <a href="./api-guide.html">API 가이드</a>
+          <a href="./security.html">보안 정책</a>
+          <a href="./dashboard.html">대시보드</a>
+          <a href="./bridge.html" class="active">브릿지 (준비중)</a>
+          <a href="./sbt.html">SBT 생성</a>
+          <a href="./rwa.html">RWA 생성</a>
+          <a href="./nft.html">NFT 생성</a>
+        </nav>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-bg" aria-hidden="true"></div>
+      <div class="container">
+        <p class="eyebrow">Staking & Bridge</p>
+        <h1>
+          MST를 wMST로 래핑하고<br />
+          wMST를 스테이킹해서 MST 보상을 받으세요
+        </h1>
+        <p class="sub">
+          이 페이지는 <b>MST 네트워크(체인ID 7601)</b>에서 동작합니다.<br>
+          먼저 <b>MST ↔ wMST</b> 브릿지를 사용하고, 이후 <b>wMST 스테이킹</b>까지 진행할 수 있습니다.
+        </p>
+      </div>
+    </section>
+
+    <!-- 네트워크 선택 (UI용) -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">네트워크 선택</h2>
+        <p class="small">
+          스테이킹을 진행할 네트워크를 선택하세요. 브릿지와 스테이킹은 Mustree(MST) 네트워크에서만 실제로 동작합니다.
+        </p>
+
+        <div class="grid cols-2" style="gap: 24px;">
+          <article class="card">
+            <div class="form">
+              <div class="field">
+                <label for="netSelect">네트워크 선택</label>
+                <select id="netSelect"></select>
+              </div>
+            </div>
+            <p class="small text-block">
+              * 네트워크 정보는 화면 표시용입니다. 실제 트랜잭션은 Mustree(MST) 네트워크에서 실행됩니다.
+            </p>
+          </article>
+
+          <article class="card">
+            <h3>선택된 네트워크 정보</h3>
+            <div class="net-info">
+              <p><b>이름</b> : <span id="netName" class="mono">-</span></p>
+              <p><b>체인 ID</b> : <span id="netChain" class="mono">-</span></p>
+              <p><b>RPC URL</b> : <span id="netRpc" class="mono">-</span></p>
+              <p><b>심볼</b> : <span id="netSymbol" class="mono">-</span></p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- 지갑 연결 & 상태 -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">지갑 연결</h2>
+        <div class="grid cols-2" style="gap:24px;">
+          <article class="card">
+            <h3>MetaMask 연결</h3>
+            <p class="small">
+              아래 버튼을 눌러 지갑을 연결합니다. 네트워크가 Mustree(MST)가 아니면 자동 전환을 시도합니다.
+            </p>
+            <button class="btn primary" id="btnConnect">지갑 연결</button>
+          </article>
+
+          <article class="card">
+            <h3>내 지갑 상태</h3>
+            <ul class="small mono">
+              <li>연결 상태: <span id="walletStatus">연결 안 됨</span></li>
+              <li>주소: <span id="walletAddress">-</span></li>
+              <li>MST(native) 잔액: <span id="mstBalance">-</span></li>
+              <li>wMST 잔액: <span id="wmstBalance">-</span></li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- MST ↔ wMST 브릿지 -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">MST ↔ wMST 브릿지</h2>
+        <p class="small">
+          아래 기능은 <b>wMST 래퍼 컨트랙트(0x3Dfc5a626a046CE0F01B130fA92dd4ef4A3f714B)</b>를 사용해
+          네이티브 MST를 wMST로 래핑/언래핑 합니다.
+        </p>
+
+        <div class="grid cols-2" style="gap:24px;">
+          <!-- MST → wMST -->
+          <article class="card">
+            <h3>MST → wMST (Wrap)</h3>
+            <p class="small">MST를 예치하고, 동일 수량의 wMST를 발행합니다.</p>
+            <div class="form">
+              <div class="field">
+                <label for="wrapAmount">예치할 MST 수량</label>
+                <input id="wrapAmount" type="number" min="0" step="any" placeholder="예: 10" />
+              </div>
+            </div>
+            <div class="cta-row">
+              <button class="btn primary" id="btnWrap">MST → wMST (deposit)</button>
+            </div>
+          </article>
+
+          <!-- wMST → MST -->
+          <article class="card">
+            <h3>wMST → MST (Unwrap)</h3>
+            <p class="small">보유한 wMST를 소각하고 동일 수량의 MST를 돌려받습니다.</p>
+            <div class="form">
+              <div class="field">
+                <label for="unwrapAmount">언래핑할 wMST 수량</label>
+                <input id="unwrapAmount" type="number" min="0" step="any" placeholder="예: 5" />
+              </div>
+            </div>
+            <div class="cta-row">
+              <button class="btn" id="btnUnwrap">wMST → MST (withdraw)</button>
+            </div>
+            <p class="small mono" id="bridgeStatus">브릿지 상태: 대기 중</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- wMST 온체인 스테이킹 -->
+    <section class="section">
+      <div class="container">
+        <h2 class="section-title">wMST 스테이킹 (보상: MST)</h2>
+        <p class="small">
+          스테이킹 컨트랙트 주소: <code>0x8Fb01DA4FA713Ce590546dC440165170E02e7D07</code><br />
+          APR 2%, 7일마다 MST 보상을 claim 할 수 있습니다.
+        </p>
+
+        <div class="grid cols-2" style="gap:24px;">
+          <!-- 왼쪽: 액션 -->
+          <article class="card">
+            <h3>스테이킹 / 언스테이킹</h3>
+            <div class="form">
+              <div class="field">
+                <label>현재 wMST 잔액</label>
+                <div id="wmstBalanceStake" class="mono">-</div>
+              </div>
+              <div class="field">
+                <label>스테이킹 수량 (wMST)</label>
+                <input id="stakeOnchainAmount" type="number" min="0" step="any" placeholder="예: 100" />
+              </div>
+              <div class="field">
+                <label>언스테이킹 수량 (wMST)</label>
+                <input id="withdrawOnchainAmount" type="number" min="0" step="any" placeholder="예: 50" />
+              </div>
+            </div>
+
+            <div class="cta-row">
+              <button class="btn" id="btnStakeApprove">1. wMST Approve</button>
+              <button class="btn primary" id="btnStake">2. Stake</button>
+            </div>
+            <div class="cta-row">
+              <button class="btn" id="btnStakeWithdraw">Withdraw</button>
+              <button class="btn" id="btnStakeClaim">Get Reward</button>
+              <button class="btn" id="btnStakeExit">Exit (All)</button>
+            </div>
+          </article>
+
+          <!-- 오른쪽: 상태 -->
+          <article class="card">
+            <h3>스테이킹 상태</h3>
+            <ul class="small mono">
+              <li>내 Staked (wMST): <span id="stStaked">-</span></li>
+              <li>예상 Earned (MST): <span id="stPending">-</span></li>
+              <li>마지막 Claim 시각: <span id="stLastClaim">-</span></li>
+              <li>다음 Claim 가능: <span id="stNextClaim">-</span></li>
+            </ul>
+            <p class="small" id="stStatus">상태: 대기 중</p>
+            <p class="note">
+              * Claim은 마지막 claim 이후 7일이 지나야 가능합니다.<br>
+              * 보상 MST는 rewardWallet에서 transferFrom 방식으로 지급됩니다.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="foot">
+      <div>© Mustree Network</div>
+      <nav>
+        <a href="./resources.html">문서</a>
+        <a href="./resources.html#security">보안 정책</a>
+      </nav>
+    </div>
+  </footer>
+
+  <script>
+    // =============================
+    // 공통 유틸 & 네트워크 UI
+    // =============================
+    const networks = [
+      { name:"Mustree",   rpc:"https://block.mst3.site",  chain:7601, symbol:"MST" },
+      { name:"JKK-TMZ",   rpc:"https://jkk.mst2.site",    chain:7707, symbol:"TMZ" },
+      { name:"KukminBank",rpc:"https://rpc.mstblock.com", chain:1213, symbol:"KBB" },
+      { name:"NABIZAM",   rpc:"https://nbmst.mst2.site",  chain:7602, symbol:"NBZ" },
+      { name:"MDPCD",     rpc:"https://mdpcd.mst2.site",  chain:7603, symbol:"MDP" }
+    ];
+
+    const netSelect  = document.getElementById('netSelect');
+    const netNameEl  = document.getElementById('netName');
+    const netChainEl = document.getElementById('netChain');
+    const netRpcEl   = document.getElementById('netRpc');
+    const netSymbolEl= document.getElementById('netSymbol');
+
+    function populateNetworkSelect() {
+      networks.forEach((n, idx) => {
+        const opt = document.createElement('option');
+        opt.value = String(idx);
+        opt.textContent = `${n.name} (${n.symbol})`;
+        netSelect.appendChild(opt);
+      });
+      updateNetworkInfo(0);
+    }
+
+    function updateNetworkInfo(idx) {
+      const n = networks[idx];
+      if (!n) return;
+      netNameEl.textContent   = n.name;
+      netChainEl.textContent  = n.chain;
+      netRpcEl.textContent    = n.rpc;
+      netSymbolEl.textContent = n.symbol;
+    }
+
+    netSelect.addEventListener('change', (e)=>{
+      const idx = Number(e.target.value || 0);
+      updateNetworkInfo(idx);
+    });
+
+    const fmt = (n) => Number(n || 0).toLocaleString('ko-KR', { maximumFractionDigits: 6 });
+
+    // =============================
+    // 온체인 설정 상수
+    // =============================
+    const MST_CHAIN_ID      = 7601;
+    const MST_CHAIN_ID_HEX  = "0x1DB1";
+    const MST_RPC_URL       = "https://block.mst3.site";
+
+    const WMST_ADDRESS      = "0x3Dfc5a626a046CE0F01B130fA92dd4ef4A3f714B";
+    const STAKING_ADDRESS   = "0x8Fb01DA4FA713Ce590546dC440165170E02e7D07";
+    const MST_TOKEN_ADDRESS = "0x403ebbf2e97caff8567e36cba3f8d3ca27e37970";
+
+    // wMST (래퍼) ABI
+    const WMST_ABI = [
+      "function name() view returns (string)",
+      "function symbol() view returns (string)",
+      "function decimals() view returns (uint8)",
+      "function balanceOf(address) view returns (uint256)",
+      "function totalSupply() view returns (uint256)",
+      "function deposit() payable",
+      "function withdraw(uint256 amount)",
+      "function approve(address spender, uint256 amount) returns (bool)"
+    ];
+
+    // 스테이킹 컨트랙트 ABI
+    const STAKING_ABI = [
+      "function stake(uint256 amount) external",
+      "function withdraw(uint256 amount) external",
+      "function claim() external",
+      "function exit() external",
+      "function pendingReward(address user) view returns (uint256)",
+      "function stakes(address user) view returns (uint256 amount, uint256 accrued, uint256 lastUpdate, uint256 lastClaimTime)",
+      "function minClaimInterval() view returns (uint256)"
+    ];
+
+    let provider, signer, currentAccount;
+    let wMST, staking;
+
+    // DOM 요소들
+    const walletStatusEl    = document.getElementById('walletStatus');
+    const walletAddressEl   = document.getElementById('walletAddress');
+    const mstBalanceEl      = document.getElementById('mstBalance');
+    const wmstBalanceEl     = document.getElementById('wmstBalance');
+    const bridgeStatusEl    = document.getElementById('bridgeStatus');
+
+    const wmstBalanceStakeEl= document.getElementById('wmstBalanceStake');
+    const stStakedEl        = document.getElementById('stStaked');
+    const stPendingEl       = document.getElementById('stPending');
+    const stLastClaimEl     = document.getElementById('stLastClaim');
+    const stNextClaimEl     = document.getElementById('stNextClaim');
+    const stStatusEl        = document.getElementById('stStatus');
+
+    // =============================
+    // 지갑 연결 & 네트워크
+    // =============================
+    async function connectWallet() {
+      if (!window.ethereum) {
+        alert("MetaMask 또는 Web3 지갑이 필요합니다.");
+        return;
+      }
+      try {
+        await window.ethereum.request({ method: "eth_requestAccounts" });
+        provider       = new ethers.providers.Web3Provider(window.ethereum);
+        signer         = provider.getSigner();
+        currentAccount = await signer.getAddress();
+
+        walletStatusEl.textContent  = "연결됨";
+        walletAddressEl.textContent = currentAccount;
+
+        await ensureMstNetwork();
+        await initContracts();
+        await refreshBalances();
+        await refreshStakingInfo();
+        setupWalletListeners();
+      } catch (e) {
+        console.error(e);
+        alert("지갑 연결 실패: " + (e.message || e));
+      }
+    }
+
+    async function ensureMstNetwork() {
+      if (!provider) return;
+      const net = await provider.getNetwork();
+      if (net.chainId === MST_CHAIN_ID) return;
+
+      try {
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: MST_CHAIN_ID_HEX }]
+        });
+      } catch (switchError) {
+        if (switchError.code === 4902) {
+          await window.ethereum.request({
+            method: "wallet_addEthereumChain",
+            params: [{
+              chainId: MST_CHAIN_ID_HEX,
+              chainName: "Mustree",
+              nativeCurrency: { name: "MST", symbol: "MST", decimals: 18 },
+              rpcUrls: [MST_RPC_URL],
+              blockExplorerUrls: []
+            }]
+          });
+        } else if (switchError.code === 4001) {
+          alert("사용자가 네트워크 전환을 취소했습니다.");
+          throw switchError;
+        } else {
+          console.error(switchError);
+          alert("네트워크 전환 실패: " + (switchError.message || switchError));
+          throw switchError;
+        }
+      }
+    }
+
+    async function initContracts() {
+      if (!signer) return;
+      wMST    = new ethers.Contract(WMST_ADDRESS, WMST_ABI, signer);
+      staking = new ethers.Contract(STAKING_ADDRESS, STAKING_ABI, signer);
+    }
+
+    function setupWalletListeners() {
+      if (!window.ethereum) return;
+
+      window.ethereum.on("accountsChanged", async (accounts) => {
+        if (!accounts || accounts.length === 0) {
+          walletStatusEl.textContent  = "연결 안 됨";
+          walletAddressEl.textContent = "-";
+          currentAccount = undefined;
+        } else {
+          currentAccount = accounts[0];
+          walletStatusEl.textContent  = "연결됨";
+          walletAddressEl.textContent = currentAccount;
+          signer = provider.getSigner();
+          await initContracts();
+          await refreshBalances();
+          await refreshStakingInfo();
+        }
+      });
+
+      window.ethereum.on("chainChanged", () => {
+        window.location.reload();
+      });
+    }
+
+    // =============================
+    // 잔액 조회
+    // =============================
+    async function refreshBalances() {
+      if (!provider || !currentAccount || !wMST) return;
+      try {
+        const mstWei  = await provider.getBalance(currentAccount);
+        const mst     = ethers.utils.formatEther(mstWei);
+        mstBalanceEl.textContent  = fmt(mst);
+
+        const wmstWei = await wMST.balanceOf(currentAccount);
+        const wmst    = ethers.utils.formatEther(wmstWei);
+        wmstBalanceEl.textContent     = fmt(wmst);
+        wmstBalanceStakeEl.textContent= fmt(wmst);
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    // =============================
+    // MST ↔ wMST 브릿지
+    // =============================
+    async function wrapMst() {
+      if (!signer) await connectWallet();
+      await ensureMstNetwork();
+      if (!wMST) await initContracts();
+
+      const amountStr = document.getElementById("wrapAmount").value;
+      if (!amountStr || parseFloat(amountStr) <= 0) {
+        alert("유효한 MST 수량을 입력하세요.");
+        return;
+      }
+
+      try {
+        const value = ethers.utils.parseEther(amountStr);
+        bridgeStatusEl.textContent = "MST → wMST 트랜잭션 전송 중...";
+
+        const tx = await wMST.deposit({ value });
+        bridgeStatusEl.textContent = "대기 중... TX: " + tx.hash;
+        await tx.wait();
+
+        bridgeStatusEl.textContent = "✅ 래핑 완료!";
+        await refreshBalances();
+      } catch (e) {
+        console.error(e);
+        bridgeStatusEl.textContent = "❌ 오류: " + (e.reason || e.message || e);
+      }
+    }
+
+    async function unwrapWmst() {
+      if (!signer) await connectWallet();
+      await ensureMstNetwork();
+      if (!wMST) await initContracts();
+
+      const amountStr = document.getElementById("unwrapAmount").value;
+      if (!amountStr || parseFloat(amountStr) <= 0) {
+        alert("유효한 wMST 수량을 입력하세요.");
+        return;
+      }
+
+      try {
+        const amount = ethers.utils.parseEther(amountStr);
+        bridgeStatusEl.textContent = "wMST → MST 트랜잭션 전송 중...";
+
+        const tx = await wMST.withdraw(amount);
+        bridgeStatusEl.textContent = "대기 중... TX: " + tx.hash;
+        await tx.wait();
+
+        bridgeStatusEl.textContent = "✅ 언래핑 완료!";
+        await refreshBalances();
+      } catch (e) {
+        console.error(e);
+        bridgeStatusEl.textContent = "❌ 오류: " + (e.reason || e.message || e);
+      }
+    }
+
+    // =============================
+    // 스테이킹 상태 조회
+    // =============================
+    async function refreshStakingInfo() {
+      if (!staking || !currentAccount) return;
+      try {
+        const info = await staking.stakes(currentAccount);
+        // info: [amount, accrued, lastUpdate, lastClaimTime]
+        const amountBN     = info[0];
+        const accruedBN    = info[1];
+        const lastUpdateBN = info[2];
+        const lastClaimBN  = info[3];
+
+        const pendingBN = await staking.pendingReward(currentAccount);
+        const minIntBN  = await staking.minClaimInterval();
+
+        const staked  = ethers.utils.formatEther(amountBN);
+        const pending = ethers.utils.formatEther(pendingBN);
+
+        stStakedEl.textContent  = fmt(staked);
+        stPendingEl.textContent = fmt(pending);
+
+        if (lastClaimBN.toNumber() === 0) {
+          stLastClaimEl.textContent = "-";
+          stNextClaimEl.textContent = "-";
+        } else {
+          const last = new Date(lastClaimBN.toNumber() * 1000);
+          const next = new Date((lastClaimBN.toNumber() + minIntBN.toNumber()) * 1000);
+          stLastClaimEl.textContent = last.toLocaleString();
+          stNextClaimEl.textContent = next.toLocaleString();
+        }
+
+        stStatusEl.textContent = "상태: 정상";
+      } catch (e) {
+        console.error(e);
+        stStatusEl.textContent = "상태 조회 실패: " + (e.reason || e.message || e);
+      }
+    }
+
+    // =============================
+    // 스테이킹 액션들
+    // =============================
+    async function stakeApproveOnchain() {
+      if (!signer) await connectWallet();
+      await ensureMstNetwork();
+      if (!wMST || !staking) await initContracts();
+
+      const amountStr = document.getElementById("stakeOnchainAmount").value;
+      if (!amountStr || parseFloat(amountStr) <= 0) {
+        alert("유효한 스테이킹 수량을 입력하세요.");
+        return;
+      }
+
+      try {
+        const amount = ethers.utils.parseEther(amountStr);
+        stStatusEl.textContent = "wMST Approve 트랜잭션 전송 중...";
+
+        const tx = await wMST.approve(STAKING_ADDRESS, amount);
+        stStatusEl.textContent = "대기 중... TX: " + tx.hash;
+        await tx.wait();
+
+        stStatusEl.textContent = "✅ Approve 완료";
+      } catch (e) {
+        console.error(e);
+        stStatusEl.textContent = "❌ Approve 실패: " + (e.reason || e.message || e);
+      }
+    }
+
+    async function stakeOnchain() {
+      if (!signer) await connectWallet();
+      await ensureMstNetwork();
+      if (!staking) await initContracts();
+
+      const amountStr = document.getElementById("stakeOnchainAmount").value;
+      if (!amountStr || parseFloat(amountStr) <= 0) {
+        alert("유효한 스테이킹 수량을 입력하세요.");
+        return;
+      }
+
+      try {
+        const amount = ethers.utils.parseEther(amountStr);
+        stStatusEl.textContent = "Stake 트랜잭션 전송 중...";
+
+        const tx = await staking.stake(amount);
+        stStatusEl.textContent = "대기 중... TX: " + tx.hash;
+        await tx.wait();
+
+        stStatusEl.textContent = "🎉 스테이킹 완료";
+        await refreshBalances();
+        await refreshStakingInfo();
+      } catch (e) {
+        console.error(e);
+        stStatusEl.textContent = "❌ Stake 실패: " + (e.reason || e.message || e);
+      }
+    }
+
+    async function withdrawOnchain() {
+      if (!signer) await connectWallet();
+      await ensureMstNetwork();
+      if (!staking) await initContracts();
+
+      const amountStr = document.getElementById("withdrawOnchainAmount").value;
+      if (!amountStr || parseFloat(amountStr) <= 0) {
+        alert("유효한 언스테이킹 수량을 입력하세요.");
+        return;
+      }
+
+      try {
+        const amount = ethers.utils.parseEther(amountStr);
+        stStatusEl.textContent = "Withdraw 트랜잭션 전송 중...";
+
+        const tx = await staking.withdraw(amount);
+        stStatusEl.textContent = "대기 중... TX: " + tx.hash;
+        await tx.wait();
+
+        stStatusEl.textContent = "✅ 언스테이킹 완료";
+        await refreshBalances();
+        await refreshStakingInfo();
+      } catch (e) {
+        console.error(e);
+        stStatusEl.textContent = "❌ Withdraw 실패: " + (e.reason || e.message || e);
+      }
+    }
+
+    async function claimOnchain() {
+      if (!signer) await connectWallet();
+      await ensureMstNetwork();
+      if (!staking) await initContracts();
+
+      try {
+        stStatusEl.textContent = "GetReward (claim) 트랜잭션 전송 중...";
+
+        const tx = await staking.claim();
+        stStatusEl.textContent = "대기 중... TX: " + tx.hash;
+        await tx.wait();
+
+        stStatusEl.textContent = "🎉 보상 수령 완료";
+        await refreshBalances();
+        await refreshStakingInfo();
+      } catch (e) {
+        console.error(e);
+        stStatusEl.textContent = "❌ Claim 실패: " + (e.reason || e.message || e);
+      }
+    }
+
+    async function exitOnchain() {
+      if (!signer) await connectWallet();
+      await ensureMstNetwork();
+      if (!staking) await initContracts();
+
+      try {
+        stStatusEl.textContent = "Exit 트랜잭션 전송 중...";
+
+        const tx = await staking.exit();
+        stStatusEl.textContent = "대기 중... TX: " + tx.hash;
+        await tx.wait();
+
+        stStatusEl.textContent = "✅ Exit 완료 (전부 언스테이킹 + Claim 시도)";
+        await refreshBalances();
+        await refreshStakingInfo();
+      } catch (e) {
+        console.error(e);
+        stStatusEl.textContent = "❌ Exit 실패: " + (e.reason || e.message || e);
+      }
+    }
+
+    // =============================
+    // 이벤트 바인딩 & 초기화
+    // =============================
+    document.getElementById("btnConnect").addEventListener("click", connectWallet);
+    document.getElementById("btnWrap").addEventListener("click", wrapMst);
+    document.getElementById("btnUnwrap").addEventListener("click", unwrapWmst);
+
+    document.getElementById("btnStakeApprove").addEventListener("click", stakeApproveOnchain);
+    document.getElementById("btnStake").addEventListener("click", stakeOnchain);
+    document.getElementById("btnStakeWithdraw").addEventListener("click", withdrawOnchain);
+    document.getElementById("btnStakeClaim").addEventListener("click", claimOnchain);
+    document.getElementById("btnStakeExit").addEventListener("click", exitOnchain);
+
+    // 초기 네트워크 UI 세팅
+    populateNetworkSelect();
+  </script>
+</body>
+</html>
