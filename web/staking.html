@@ -22,7 +22,8 @@
           <a href="./api-guide.html">API 가이드</a>
           <a href="./security.html">보안 정책</a>
           <a href="./dashboard.html">대시보드</a>
-          <a href="./bridge.html" class="active">브릿지 (준비중)</a>
+          <a href="./staking.html" class="active">스테이킹</a>
+          <a href="./bridge.html">브릿지 (준비중)</a>
           <a href="./sbt.html">SBT 생성</a>
           <a href="./rwa.html">RWA 생성</a>
           <a href="./nft.html">NFT 생성</a>
@@ -38,8 +39,7 @@
       <div class="container">
         <p class="eyebrow">Staking & Bridge</p>
         <h1>
-          MST를 wMST로 래핑하고<br />
-          wMST를 스테이킹해서 MST 보상을 받으세요
+          MST를 스테이킹 하고 보상을 받으세요
         </h1>
         <p class="sub">
           이 페이지는 <b>MST 네트워크(체인ID 7601)</b>에서 동작합니다.<br>
@@ -119,19 +119,28 @@
 
         <div class="grid cols-2" style="gap:24px;">
           <!-- MST → wMST -->
-          <article class="card">
+            <article class="card">
             <h3>MST → wMST (Wrap)</h3>
             <p class="small">MST를 예치하고, 동일 수량의 wMST를 발행합니다.</p>
             <div class="form">
-              <div class="field">
+                <div class="field">
+                <label>내 MST 잔액</label>
+                <div id="bridgeMstBalance" class="mono">-</div>
+                </div>
+                <div class="field">
+                <label>내 wMST 잔액</label>
+                <div id="bridgeWmstBalance" class="mono">-</div>
+                </div>
+                <div class="field">
                 <label for="wrapAmount">예치할 MST 수량</label>
                 <input id="wrapAmount" type="number" min="0" step="any" placeholder="예: 10" />
-              </div>
+                </div>
             </div>
             <div class="cta-row">
-              <button class="btn primary" id="btnWrap">MST → wMST (deposit)</button>
+                <button class="btn primary" id="btnWrap">MST → wMST (deposit)</button>
             </div>
-          </article>
+            </article>
+
 
           <!-- wMST → MST -->
           <article class="card">
@@ -309,7 +318,10 @@
     const wmstBalanceEl     = document.getElementById('wmstBalance');
     const bridgeStatusEl    = document.getElementById('bridgeStatus');
 
-    const wmstBalanceStakeEl= document.getElementById('wmstBalanceStake');
+    const bridgeMstBalanceEl  = document.getElementById('bridgeMstBalance');
+    const bridgeWmstBalanceEl = document.getElementById('bridgeWmstBalance');
+    const wmstBalanceStakeEl  = document.getElementById('wmstBalanceStake');
+
     const stStakedEl        = document.getElementById('stStaked');
     const stPendingEl       = document.getElementById('stPending');
     const stLastClaimEl     = document.getElementById('stLastClaim');
@@ -411,20 +423,29 @@
     // 잔액 조회
     // =============================
     async function refreshBalances() {
-      if (!provider || !currentAccount || !wMST) return;
-      try {
+    if (!provider || !currentAccount || !wMST) return;
+    try {
         const mstWei  = await provider.getBalance(currentAccount);
         const mst     = ethers.utils.formatEther(mstWei);
-        mstBalanceEl.textContent  = fmt(mst);
+
+        mstBalanceEl.textContent        = fmt(mst);
+        if (bridgeMstBalanceEl) {
+        bridgeMstBalanceEl.textContent = fmt(mst);
+        }
 
         const wmstWei = await wMST.balanceOf(currentAccount);
         const wmst    = ethers.utils.formatEther(wmstWei);
-        wmstBalanceEl.textContent     = fmt(wmst);
-        wmstBalanceStakeEl.textContent= fmt(wmst);
-      } catch (e) {
+
+        wmstBalanceEl.textContent        = fmt(wmst);
+        wmstBalanceStakeEl.textContent   = fmt(wmst);
+        if (bridgeWmstBalanceEl) {
+        bridgeWmstBalanceEl.textContent = fmt(wmst);
+        }
+    } catch (e) {
         console.error(e);
-      }
     }
+    }
+
 
     // =============================
     // MST ↔ wMST 브릿지
