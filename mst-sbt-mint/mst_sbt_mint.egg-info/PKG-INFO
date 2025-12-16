@@ -1,0 +1,19 @@
+Metadata-Version: 2.4
+Name: mst-sbt-mint
+Version: 0.1.0
+Summary: Mustree Network SBT(Soulbound Token) minting SDK
+Author-email: JaeHyun Kim <passiontom@anver.com>
+License: MIT
+Project-URL: Homepage, https://github.com/your-org/mst-sbt-mint
+Requires-Python: >=3.9
+Description-Content-Type: text/markdown
+Requires-Dist: web3>=7.0.0
+
+# mst-sbt-mint
+
+Mustree Network용 SBT(Soulbound Token) 발행 Python SDK
+
+## 설치 (로컬 테스트용)
+
+```bash
+pip install dist/mst_sbt_mint-0.1.0-py3-none-any.whl
