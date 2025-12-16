@@ -139,6 +139,28 @@
       </div>
     </div>
   </section>
+	<!-- IPFS CID 기반 원본 파일 다운로드 -->
+  <section class="section">
+	<div class="container">
+		<h2 class="section-title">4. IPFS 원본 파일 다운로드</h2>
+
+		<div class="card" style="padding:16px;">
+		<div class="field">
+			<label>CID 입력</label>
+			<input id="downloadCidInput" placeholder="Qm... 또는 bafy..." />
+		</div>
+
+		<button id="downloadBtn" class="btn" style="margin-top:12px;">
+			원본 파일 다운로드
+		</button>
+
+		<p class="small" style="margin-top:8px;">
+			Gateway: <code>https://rwa-gw.mst3.site/ipfs/&lt;CID&gt;</code>
+		</p>
+		</div>
+	</div>
+  </section>
+
 </main>
 
 <footer class="site-footer">
@@ -942,6 +964,26 @@ async function mintRwaOnChain() {
 
 
 mintBtn.addEventListener("click", mintRwaOnChain);
+
+/* ================================
+   6) CID 기반 IPFS 원본 다운로드
+================================ */
+const downloadBtn = document.getElementById("downloadBtn");
+const downloadCidInput = document.getElementById("downloadCidInput");
+
+downloadBtn.addEventListener("click", () => {
+  const cid = downloadCidInput.value.trim();
+  if (!cid) {
+    alert("CID를 입력해주세요.");
+    return;
+  }
+
+  const gatewayUrl = `https://rwa-gw.mst3.site/ipfs/${cid}`;
+
+  // 새 탭에서 다운로드 (브라우저 기본 처리)
+  window.open(gatewayUrl, "_blank");
+});
+
 
 </script>
 
