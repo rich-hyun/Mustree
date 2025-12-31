@@ -189,11 +189,11 @@ netSelect.addEventListener("change", async()=>{
    2) NFT 컨트랙트 주소 (네가 채워넣기)
 ------------------------------ */
 const CONTRACTS = {
-  "Mustree":    "0x6255a7Fbbc3BBccD177E38936062F84A7580B24d",
-  "JKK-TMZ":    "0x522802a049B7B8940bBC03aB835954321f7872EC",
+  "Mustree":    "0x22177F9eC4eaFA83baaa9D370654785B531724Ed",
+  "JKK-TMZ":    "0x941cb6da300f67e0F8882B61c65bC92f535F7fe1",
   "KukminBank": "0x0000000000000000000000000000000000000003",
-  "NABIZAM":    "0xd57EAf9e0EEA6226ed0240643Ce409B5253dBcEa",
-  "MDPCD":      "0xD8e691d62aA912a3e735Ef2723A8544885358517",
+  "NABIZAM":    "0x9A886c83c9c317aFa3cA4325f64fC721582d108b",
+  "MDPCD":      "0x9A886c83c9c317aFa3cA4325f64fC721582d108b",
 };
 
 /* ------------------------------
@@ -770,6 +770,7 @@ async function execNFT(){
     await ethereum.request({method:"eth_requestAccounts"});
 
     const net=getSelectedNet();
+
     const CONTRACT_ADDRESS=CONTRACTS[net.name];
 
     const provider=new ethers.BrowserProvider(ethereum);
