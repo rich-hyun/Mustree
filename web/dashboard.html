@@ -109,7 +109,7 @@
 
   <script>
     async function loadBalances() {
-      const res = await fetch("https://api.mst3.site/api/balances")
+      const res = await fetch("https://api.mustree.kr/api/balances");
       const json = await res.json();
 
       const tbody = document.getElementById("walletTable");
