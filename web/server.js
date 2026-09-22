@@ -4,6 +4,7 @@ const cors = require('cors');
 
 const app = express();
 app.use(cors());
+app.use(express.static(__dirname));
 
 // ===== 1. 네트워크 RPC 설정 =====
 const RPC_URL = "http://203.252.147.197:8545";  // ← 네트워크 RPC 주소로 수정

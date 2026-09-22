@@ -52,6 +52,11 @@
       100% { text-shadow: 0 0 38px rgba(0, 200, 255, 1); }
     }
 
+    .mst-subscribe-section {
+      margin-top: 40px;
+      text-align: center;
+    }
+
   </style>
 </head>
 
@@ -84,6 +89,11 @@
     <h1>MST 네트워크 토큰 잔액 대시보드</h1>
     <p class="sub">MST 네트워크의 주요 지갑 잔액을 실시간 모니터링합니다.</p>
     <div id="updateTimeBig" class="update-time-neo"></div>
+
+    <section class="mst-subscribe-section">
+      <div id="mst-subscribe"></div>
+      <script src="subscribe-widget.js" data-api="https://report.mustree.kr:18443" data-mode="email"></script>
+    </section>
   </div>
 </section>
 
